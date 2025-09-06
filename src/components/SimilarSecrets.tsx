@@ -26,39 +26,15 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8 fade-in">
-      {/* User's submitted secret */}
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-trust rounded-xl mb-2">
-          <Heart className="w-6 h-6 text-white" />
-        </div>
-        <h2 className="text-2xl font-bold">Your Secret Has Been Shared</h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Thank you for being vulnerable. We've found others who may share similar experiences.
-        </p>
-      </div>
-
-      {/* User's secret card */}
-      <Card className="secret-card border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Lock className="w-5 h-5 text-primary" />
-            Your Secret
-          </CardTitle>
-          <CardDescription>
-            Shared {formatDistanceToNow(new Date(userSecret.created_at), { addSuffix: true })}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-foreground leading-relaxed">{userSecret.secret_text}</p>
-        </CardContent>
-      </Card>
-
+    <div className="w-full max-w-4xl mx-auto space-y-6 fade-in">
       {/* Similar secrets */}
       {similarSecrets.length > 0 ? (
         <div className="space-y-6">
           <div className="text-center">
-            <h3 className="text-xl font-semibold mb-2">People Who Understand</h3>
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-trust rounded-xl mb-4">
+              <Heart className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">People Who Understand</h2>
             <p className="text-muted-foreground">
               These anonymous shares resonate with your experience
             </p>

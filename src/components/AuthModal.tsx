@@ -93,10 +93,7 @@ export default function AuthModal({ open, onOpenChange, onAuthSuccess }: AuthMod
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-black border-gray-800">
         <DialogHeader className="text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-700 rounded-xl mb-4 mx-auto">
-            <Heart className="w-6 h-6" style={{ color: 'hsl(var(--hot-red))' }} />
-          </div>
-          <DialogTitle className="text-xl font-lacquer text-white tracking-wider" style={{ color: 'hsl(var(--hot-red))' }}>
+          <DialogTitle className="text-xl font-lacquer text-white tracking-wider mb-2" style={{ color: 'hsl(var(--hot-red))' }}>
             {isSignUp ? "CREATE ACCOUNT" : "WELCOME BACK"}
           </DialogTitle>
           <DialogDescription className="text-yellow-400 font-lacquer uppercase tracking-wide">

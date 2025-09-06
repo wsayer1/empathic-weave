@@ -8,35 +8,58 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Core Colors - Soft, trustworthy palette */
+    --background: 0 0% 99%;
+    --foreground: 225 15% 15%;
+    
+    /* Primary - Deep trust purple */
+    --primary: 259 83% 58%;
+    --primary-foreground: 0 0% 98%;
+    --primary-muted: 259 40% 92%;
+    
+    /* Secondary - Warm connection */
+    --secondary: 24 100% 95%;
+    --secondary-foreground: 24 45% 25%;
+    
+    /* Accent - Gentle warmth */
+    --accent: 34 100% 92%;
+    --accent-foreground: 34 55% 30%;
+    
+    /* Trust gradient - Primary branding */
+    --gradient-trust: linear-gradient(135deg, hsl(259 83% 58%), hsl(276 100% 68%));
+    --gradient-warm: linear-gradient(135deg, hsl(34 100% 85%), hsl(24 100% 90%));
+    --gradient-gentle: linear-gradient(180deg, hsl(0 0% 99%), hsl(259 40% 98%));
+    
+    /* Shadows with primary color */
+    --shadow-soft: 0 2px 20px -4px hsl(259 83% 58% / 0.1);
+    --shadow-medium: 0 8px 30px -8px hsl(259 83% 58% / 0.15);
+    --shadow-strong: 0 20px 40px -10px hsl(259 83% 58% / 0.2);
+    
+    /* Animations */
+    --transition-gentle: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 
+    /* Card system */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 225 15% 15%;
 
+    /* Popover system */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 225 15% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Muted elements */
+    --muted: 259 40% 96%;
+    --muted-foreground: 225 10% 55%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Border and input */
+    --border: 259 30% 90%;
+    --input: 259 30% 92%;
+    --ring: 259 83% 58%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
 
@@ -100,6 +123,72 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    background: var(--gradient-gentle);
+  }
+}
+
+@layer components {
+  /* Gradient backgrounds */
+  .bg-gradient-trust {
+    background: var(--gradient-trust);
+  }
+  
+  .bg-gradient-warm {
+    background: var(--gradient-warm);
+  }
+  
+  .bg-gradient-gentle {
+    background: var(--gradient-gentle);
+  }
+  
+  /* Custom shadows */
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  
+  .shadow-medium {
+    box-shadow: var(--shadow-medium);
+  }
+  
+  .shadow-strong {
+    box-shadow: var(--shadow-strong);
+  }
+  
+  /* Transitions */
+  .transition-gentle {
+    transition: var(--transition-gentle);
+  }
+  
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+  
+  /* Glass effect */
+  .glass {
+    @apply backdrop-blur-xl bg-white/70 border border-white/20;
+  }
+  
+  .glass-dark {
+    @apply backdrop-blur-xl bg-black/20 border border-white/10;
+  }
+  
+  /* Secret card styles */
+  .secret-card {
+    @apply p-6 rounded-2xl bg-white/90 backdrop-blur-sm border border-primary/10 shadow-soft;
+    @apply hover:shadow-medium transition-gentle hover:-translate-y-1;
+  }
+  
+  /* Primary button with gradient */
+  .btn-primary {
+    @apply relative px-8 py-4 rounded-xl text-white font-medium;
+    @apply bg-gradient-trust shadow-medium hover:shadow-strong;
+    @apply transform hover:scale-105 transition-bounce;
+    @apply focus:ring-4 focus:ring-primary/20 focus:outline-none;
+  }
+  
+  /* Gentle fade in animation */
+  .fade-in {
+    @apply animate-fade-in;
   }
 }

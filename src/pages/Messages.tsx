@@ -77,13 +77,13 @@ const Messages = () => {
 
   if (!user) {
     return (
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-            <Lock className="w-8 h-8 text-muted-foreground" />
+      <main className="container mx-auto px-8 py-8 min-h-screen bg-black">
+        <div className="text-center py-16">
+          <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-gray-400" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">Sign In Required</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-lacquer text-white mb-2 tracking-wider">SIGN IN REQUIRED</h1>
+          <p className="text-yellow-400 font-lacquer tracking-wide uppercase">
             Please sign in to view your conversations.
           </p>
         </div>
@@ -93,53 +93,55 @@ const Messages = () => {
 
   if (loading) {
     return (
-      <main className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <div className="animate-pulse-subtle text-muted-foreground">Loading your conversations...</div>
+      <main className="container mx-auto px-8 py-8 min-h-screen bg-black">
+        <div className="text-center py-16">
+          <div className="animate-pulse-subtle text-gray-400 font-lacquer">Loading your conversations...</div>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-8 py-8 min-h-screen bg-black">
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Messages</h1>
-          <p className="text-muted-foreground">
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl md:text-5xl font-lacquer mb-4 tracking-wider" style={{ color: 'hsl(var(--hot-red))' }}>
+            MESSAGES
+          </h1>
+          <p className="text-lg text-yellow-400 font-lacquer leading-relaxed uppercase tracking-wide">
             Your conversations with others who share similar experiences.
           </p>
         </div>
 
         {matches.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-              <MessageSquare className="w-8 h-8 text-muted-foreground" />
+            <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+              <MessageSquare className="w-8 h-8 text-gray-400" />
             </div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">No conversations yet</h2>
-            <p className="text-muted-foreground mb-4">
-              Share a secret and connect with others to start conversations.
+            <h2 className="text-xl font-lacquer text-white mb-2 tracking-wider">NO CONVERSATIONS YET</h2>
+            <p className="text-yellow-400 font-lacquer mb-4 tracking-wide uppercase">
+              Share a hot take and connect with others to start conversations.
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {matches.map((match) => (
-              <Card key={match.id} className="glass shadow-soft border-0 hover:shadow-medium transition-gentle cursor-pointer">
+              <Card key={match.id} className="bg-gray-900/50 border-gray-800 backdrop-blur-sm hover:bg-gray-900/70 transition-colors cursor-pointer">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-trust rounded-full flex items-center justify-center">
-                        <MessageSquare className="w-5 h-5 text-white" />
+                      <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
+                        <MessageSquare className="w-5 h-5 text-gray-400" />
                       </div>
                       <div>
-                        <h3 className="font-medium text-foreground">Anonymous Connection</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Started {formatDate(match.created_at)}
+                        <h3 className="font-lacquer text-white tracking-wide">ANONYMOUS CONNECTION</h3>
+                        <p className="text-sm text-gray-400 font-lacquer tracking-wide">
+                          STARTED {formatDate(match.created_at).toUpperCase()}
                         </p>
                       </div>
                     </div>
-                    <div className="text-sm text-muted-foreground capitalize">
-                      {match.status}
+                    <div className="text-sm text-gray-400 capitalize font-lacquer tracking-wide">
+                      {match.status.toUpperCase()}
                     </div>
                   </div>
                 </CardContent>

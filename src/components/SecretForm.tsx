@@ -57,11 +57,6 @@ export default function SecretForm({ user, onSecretSubmitted }: SecretFormProps)
         return;
       }
 
-      toast({
-        title: "Secret shared",
-        description: "Your secret has been shared anonymously. Finding similar experiences...",
-      });
-
       setSecretText("");
       onSecretSubmitted(data);
 

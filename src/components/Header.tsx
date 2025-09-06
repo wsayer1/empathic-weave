@@ -58,7 +58,7 @@ export default function Header({ user, onSignOut, onAuthClick }: HeaderProps) {
               onClick={onAuthClick}
               variant="outline"
               size="lg"
-              className="bg-muted/20 border-muted text-white hover:bg-muted/30 px-8 py-3 text-lg font-medium rounded-lg"
+              className="bg-muted/20 border-muted text-white hover:bg-muted/30 px-8 py-3 text-lg font-lacquer rounded-lg"
             >
               LOG IN
             </Button>

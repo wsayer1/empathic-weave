@@ -93,7 +93,7 @@ export default function SecretForm({ user, onSecretSubmitted }: SecretFormProps)
           <Button
             type="submit"
             disabled={loading || !secretText.trim() || isOverLimit}
-            className="px-12 py-4 text-xl font-semibold bg-orange-400 hover:bg-orange-500 text-black border-0 rounded-xl transition-gentle"
+            className="px-12 py-4 text-xl font-lacquer bg-orange-400 hover:bg-orange-500 text-black border-0 rounded-xl transition-gentle"
           >
             {loading ? (
               <>

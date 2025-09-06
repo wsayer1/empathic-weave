@@ -62,10 +62,10 @@ const NewSecret = () => {
       ) : (
         <div className="space-y-12 py-16">
           <div className="text-center max-w-4xl mx-auto fade-in">
-            <h1 className="text-5xl md:text-7xl font-lacquer mb-8 tracking-wider" style={{ color: 'hsl(var(--hot-red))' }}>
+            <h1 className="text-4xl md:text-5xl font-lacquer mb-8 tracking-wider" style={{ color: 'hsl(var(--hot-red))' }}>
               SHARE YOUR HOT TAKE
             </h1>
-            <p className="text-2xl text-yellow-400 font-young-serif leading-relaxed uppercase tracking-wide">
+            <p className="text-lg text-yellow-400 font-lacquer leading-relaxed uppercase tracking-wide">
               IF WE HAVE A SIMILAR HOT TAKE ON RECORD, WE'LL MATCH YOU IN AN ANONYMOUS CHAT
             </p>
           </div>

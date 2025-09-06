@@ -84,7 +84,7 @@ export default function SecretForm({ user, onSecretSubmitted }: SecretFormProps)
             value={secretText}
             onChange={(e) => setSecretText(e.target.value)}
             placeholder="The Dating scene in SF is fucked"
-            className="min-h-[150px] bg-muted/60 border-0 text-white text-xl p-6 rounded-2xl placeholder:text-muted-foreground/60 resize-none focus:ring-0 focus:outline-none"
+            className="min-h-[150px] bg-gray-700 border-0 text-white text-xl p-6 rounded-2xl placeholder:text-muted-foreground/60 resize-none focus:ring-0 focus:outline-none"
             disabled={loading}
           />
         </div>

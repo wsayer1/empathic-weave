@@ -71,7 +71,13 @@ export default function MessageThread({ userSecret, otherSecret, onBack }: Messa
         } else {
           // Create new match
           const otherUserId = otherSecret.user_id;
+          console.log('Other user ID:', otherUserId);
+          console.log('Current user ID:', user.id);
+          console.log('User secret ID:', userSecret.id);
+          console.log('Other secret ID:', otherSecret.id);
+          
           if (!otherUserId) {
+            console.log('Cannot create conversation - other secret is anonymous');
             toast({
               title: "Cannot create conversation",
               description: "The other user's secret is anonymous.",
@@ -94,6 +100,13 @@ export default function MessageThread({ userSecret, otherSecret, onBack }: Messa
 
           if (createError) {
             console.error('Error creating match:', createError);
+            console.error('Match data attempted:', {
+              user1_id: user.id,
+              user2_id: otherUserId,
+              secret1_id: userSecret.id,
+              secret2_id: otherSecret.id,
+              status: 'active'
+            });
             toast({
               title: "Error creating conversation",
               description: "Failed to start the conversation. Please try again.",

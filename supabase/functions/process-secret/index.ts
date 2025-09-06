@@ -87,9 +87,10 @@ serve(async (req) => {
       .select('id, secret_text, created_at, user_id, embedding')
       .neq('id', newSecret.id);
 
-    // If user is authenticated, exclude their own secrets from similar results
+    // If user is authenticated, exclude their own secrets AND anonymous secrets from similar results
+    // (since you can't message anonymous users)
     if (user_id) {
-      query = query.neq('user_id', user_id);
+      query = query.neq('user_id', user_id).not('user_id', 'is', null);
     }
 
     const { data: allSecrets, error: selectError } = await query;
@@ -150,7 +151,7 @@ serve(async (req) => {
 
     console.log(`Found ${similarities.length} similar secrets for user ${user_id || 'anonymous'}`);
     if (user_id) {
-      console.log('Excluded user own secrets from results');
+      console.log('Excluded user own secrets and anonymous secrets from results');
     }
 
     // Remove embedding from response to keep it clean

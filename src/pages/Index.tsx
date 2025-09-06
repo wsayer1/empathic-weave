@@ -58,21 +58,9 @@ const Index = () => {
         <div className="min-h-screen w-full bg-black flex">
           <AppSidebar />
           
-          <div className="flex-1 flex flex-col bg-black">
-            <Header 
-              user={user} 
-              onSignOut={() => {
-                setUser(null);
-                setSession(null);
-                handleNewSecret();
-              }}
-              onAuthClick={() => setShowAuthModal(true)}
-            />
-            
-            <main className="flex-1 bg-black">
-              <Outlet context={{ user }} />
-            </main>
-          </div>
+          <main className="flex-1 bg-black">
+            <Outlet context={{ user }} />
+          </main>
         </div>
         
         <AuthModal 

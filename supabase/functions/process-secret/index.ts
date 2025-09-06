@@ -114,7 +114,7 @@ serve(async (req) => {
 
     // Calculate similarities for all secrets that have embeddings
     const similarities = allSecrets
-      .filter(secret => secret.embedding)
+      .filter(secret => secret.embedding && Array.isArray(secret.embedding))
       .map(secret => ({
         ...secret,
         similarity: calculateCosineSimilarity(embedding, secret.embedding)

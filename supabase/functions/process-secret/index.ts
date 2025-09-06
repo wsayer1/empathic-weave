@@ -104,10 +104,10 @@ serve(async (req) => {
       );
     }
 
-    // Helper function to safely parse vector strings into arrays
-    const parseEmbedding = (embedding: any): number[] | null => {
+    // Helper function to safely validate embeddings
+    const validateEmbedding = (embedding: any): number[] | null => {
       try {
-        if (Array.isArray(embedding)) {
+        if (Array.isArray(embedding) && embedding.length === 1536 && embedding.every(n => typeof n === 'number')) {
           return embedding;
         }
         if (typeof embedding === 'string') {
@@ -118,7 +118,7 @@ serve(async (req) => {
         }
         return null;
       } catch (error) {
-        console.error('Error parsing embedding:', error);
+        console.error('Error validating embedding:', error);
         return null;
       }
     };
@@ -134,7 +134,7 @@ serve(async (req) => {
     // Calculate similarities for all secrets that have embeddings
     const similarities = allSecrets
       .map(secret => {
-        const parsedEmbedding = parseEmbedding(secret.embedding);
+        const parsedEmbedding = validateEmbedding(secret.embedding);
         if (!parsedEmbedding) return null;
         
         return {

@@ -83,15 +83,6 @@ export default function SecretForm({ user, onSecretSubmitted }: SecretFormProps)
 
   return (
     <Card className="w-full max-w-2xl mx-auto glass shadow-medium border-0">
-      <CardHeader className="text-center">
-        <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-trust rounded-xl mb-3 mx-auto">
-          <Lock className="w-6 h-6 text-white" />
-        </div>
-        <CardTitle className="text-2xl">Share Your Secret</CardTitle>
-        <CardDescription className="text-base">
-          Express yourself anonymously. Your secret will be matched with similar experiences to help you connect with others who understand.
-        </CardDescription>
-      </CardHeader>
       
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">

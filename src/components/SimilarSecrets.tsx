@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Heart, Users, MessageCircle, Calendar } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useState } from "react";
+import AuthModal from "./AuthModal";
 
 interface Secret {
   id: string;
@@ -19,10 +21,20 @@ interface SimilarSecretsProps {
 }
 
 export default function SimilarSecrets({ userSecret, similarSecrets, user, onConnect }: SimilarSecretsProps) {
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  
   const getSimilarityBadge = (similarity: number) => {
     if (similarity > 0.8) return { label: "Very Similar", color: "bg-gradient-trust text-white" };
     if (similarity > 0.6) return { label: "Similar", color: "bg-gradient-warm text-secondary-foreground" };
     return { label: "Somewhat Similar", color: "bg-muted text-muted-foreground" };
+  };
+
+  const handleMessageClick = (secretId: string) => {
+    if (!user) {
+      setAuthModalOpen(true);
+    } else if (onConnect) {
+      onConnect(secretId);
+    }
   };
 
   return (
@@ -40,54 +52,54 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="space-y-6">
             {similarSecrets.map((secret, index) => {
               const badge = getSimilarityBadge(secret.similarity || 0);
               const similarityPercentage = Math.round((secret.similarity || 0) * 100);
               
               return (
                 <Card key={secret.id} className="secret-card group hover-scale">
-                  <CardContent className="space-y-4 pt-6">
-                    {/* Main secret text - prominent */}
-                    <div className="space-y-3">
+                  <CardContent className="flex items-start gap-6 pt-6">
+                    {/* Left content - secret text and metadata */}
+                    <div className="flex-1 space-y-4">
+                      {/* Main secret text */}
                       <p className="text-foreground leading-relaxed text-base font-medium">
                         {secret.secret_text}
                       </p>
-                    </div>
-                    
-                    {/* Similarity score - prominent badge */}
-                    <div className="flex items-center justify-between">
-                      <Badge className={`${badge.color} text-sm font-medium px-3 py-1`}>
-                        {similarityPercentage}% Match
-                      </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        {badge.label}
-                      </span>
-                    </div>
-                    
-                    {/* Secondary information - less prominent */}
-                    <div className="flex items-center justify-between text-xs text-muted-foreground border-t pt-3">
-                      <div className="flex items-center gap-2">
-                        <Users className="w-3 h-3" />
-                        <span>Anonymous</span>
+                      
+                      {/* Similarity score */}
+                      <div className="flex items-center gap-3">
+                        <Badge className={`${badge.color} text-sm font-medium px-3 py-1`}>
+                          {similarityPercentage}% Match
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {badge.label}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-3 h-3" />
-                        <span>{formatDistanceToNow(new Date(secret.created_at), { addSuffix: true })}</span>
+                      
+                      {/* Secondary information */}
+                      <div className="flex items-center justify-between text-xs text-muted-foreground border-t pt-3">
+                        <div className="flex items-center gap-2">
+                          <Users className="w-3 h-3" />
+                          <span>Anonymous</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-3 h-3" />
+                          <span>{formatDistanceToNow(new Date(secret.created_at), { addSuffix: true })}</span>
+                        </div>
                       </div>
                     </div>
                     
-                    {user && onConnect && (
+                    {/* Right side - prominent message button */}
+                    <div className="flex-shrink-0">
                       <Button
-                        onClick={() => onConnect(secret.id)}
-                        variant="outline"
-                        size="sm"
-                        className="w-full transition-gentle hover:bg-primary/5 hover:border-primary/30 mt-4"
+                        onClick={() => handleMessageClick(secret.id)}
+                        className="btn-primary px-6 py-3"
                       >
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Connect Anonymously
+                        <MessageCircle className="w-5 h-5 mr-2" />
+                        Message
                       </Button>
-                    )}
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -108,20 +120,14 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
         </Card>
       )}
 
-      {!user && similarSecrets.length > 0 && (
-        <Card className="secret-card border-primary/20 bg-gradient-gentle">
-          <CardContent className="pt-6 text-center">
-            <h3 className="text-lg font-medium mb-2">Want to Connect?</h3>
-            <p className="text-muted-foreground mb-4">
-              Create an account to anonymously connect with people who share similar experiences.
-            </p>
-            <Button className="btn-primary">
-              <Heart className="w-4 h-4 mr-2" />
-              Create Account
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      <AuthModal 
+        open={authModalOpen} 
+        onOpenChange={setAuthModalOpen}
+        onAuthSuccess={() => {
+          // Refresh the page or trigger auth state update
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

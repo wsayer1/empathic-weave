@@ -5,13 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Header from "@/components/Header";
-import AuthForm from "@/components/AuthForm";
+import AuthModal from "@/components/AuthModal";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [showAuth, setShowAuth] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -23,7 +23,7 @@ const Index = () => {
         setUser(session?.user ?? null);
         
         if (event === 'SIGNED_IN') {
-          setShowAuth(false);
+          setShowAuthModal(false);
         }
       }
     );
@@ -50,9 +50,6 @@ const Index = () => {
     );
   }
 
-  if (showAuth) {
-    return <AuthForm onAuthSuccess={() => setShowAuth(false)} />;
-  }
 
   // If user is authenticated, show full app with sidebar
   if (user) {
@@ -69,14 +66,18 @@ const Index = () => {
                 setSession(null);
                 handleNewSecret();
               }}
-              onAuthClick={() => setShowAuth(true)}
+              onAuthClick={() => setShowAuthModal(true)}
             />
             
             <Outlet context={{ user }} />
           </div>
         </div>
         
-        {showAuth && <AuthForm onAuthSuccess={() => setShowAuth(false)} />}
+        <AuthModal 
+          open={showAuthModal}
+          onOpenChange={setShowAuthModal}
+          onAuthSuccess={() => setShowAuthModal(false)}
+        />
       </SidebarProvider>
     );
   }
@@ -91,12 +92,16 @@ const Index = () => {
           setSession(null);
           handleNewSecret();
         }}
-        onAuthClick={() => setShowAuth(true)}
+        onAuthClick={() => setShowAuthModal(true)}
       />
       
       <Outlet context={{ user }} />
       
-      {showAuth && <AuthForm onAuthSuccess={() => setShowAuth(false)} />}
+      <AuthModal 
+        open={showAuthModal}
+        onOpenChange={setShowAuthModal}
+        onAuthSuccess={() => setShowAuthModal(false)}
+      />
     </div>
   );
 };

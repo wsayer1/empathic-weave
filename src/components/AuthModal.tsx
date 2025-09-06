@@ -91,25 +91,25 @@ export default function AuthModal({ open, onOpenChange, onAuthSuccess }: AuthMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-black border-gray-800">
         <DialogHeader className="text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-trust rounded-xl mb-4 mx-auto">
-            <Heart className="w-6 h-6 text-white" />
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-700 rounded-xl mb-4 mx-auto">
+            <Heart className="w-6 h-6" style={{ color: 'hsl(var(--hot-red))' }} />
           </div>
-          <DialogTitle className="text-xl">
-            {isSignUp ? "Create Account" : "Welcome Back"}
+          <DialogTitle className="text-xl font-lacquer text-white tracking-wider" style={{ color: 'hsl(var(--hot-red))' }}>
+            {isSignUp ? "CREATE ACCOUNT" : "WELCOME BACK"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-yellow-400 font-lacquer uppercase tracking-wide">
             {isSignUp 
-              ? "Join our community to connect with kindred spirits" 
-              : "Sign in to start connecting with others"
+              ? "JOIN THE COMMUNITY OF HOT TAKES" 
+              : "SIGN IN TO SHARE YOUR THOUGHTS"
             }
           </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleAuth} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="modal-email">Email</Label>
+            <Label htmlFor="modal-email" className="text-white font-lacquer uppercase tracking-wide">Email</Label>
             <Input
               id="modal-email"
               type="email"
@@ -117,12 +117,12 @@ export default function AuthModal({ open, onOpenChange, onAuthSuccess }: AuthMod
               onChange={(e) => setEmail(e.target.value)}
               placeholder="your@email.com"
               required
-              className="transition-gentle focus:ring-primary/20"
+              className="bg-gray-700 border-0 text-white placeholder:text-gray-400 focus:ring-0 focus:outline-none"
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="modal-password">Password</Label>
+            <Label htmlFor="modal-password" className="text-white font-lacquer uppercase tracking-wide">Password</Label>
             <Input
               id="modal-password"
               type="password"
@@ -131,19 +131,19 @@ export default function AuthModal({ open, onOpenChange, onAuthSuccess }: AuthMod
               placeholder="••••••••"
               required
               minLength={6}
-              className="transition-gentle focus:ring-primary/20"
+              className="bg-gray-700 border-0 text-white placeholder:text-gray-400 focus:ring-0 focus:outline-none"
             />
           </div>
 
           <Button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary"
+            className="w-full bg-gray-700 hover:bg-gray-600 border-0 text-white hover:text-yellow-400 font-lacquer uppercase tracking-wide transition-colors"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
             ) : null}
-            {isSignUp ? "Create Account" : "Sign In"}
+            {isSignUp ? "CREATE ACCOUNT" : "SIGN IN"}
           </Button>
         </form>
 
@@ -151,7 +151,7 @@ export default function AuthModal({ open, onOpenChange, onAuthSuccess }: AuthMod
           <button
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}
-            className="text-sm text-muted-foreground hover:text-primary transition-gentle"
+            className="text-sm text-gray-400 hover:text-yellow-400 transition-colors font-lacquer"
           >
             {isSignUp 
               ? "Already have an account? Sign in" 

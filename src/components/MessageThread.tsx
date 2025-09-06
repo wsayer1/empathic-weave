@@ -93,7 +93,7 @@ export default function MessageThread({ userSecret, otherSecret, onBack }: Messa
               user2_id: otherUserId,
               secret1_id: userSecret.id,
               secret2_id: otherSecret.id,
-              status: 'active'
+            status: 'accepted'
             })
             .select('id')
             .single();

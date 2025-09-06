@@ -55,10 +55,10 @@ const Index = () => {
   if (user) {
     return (
       <SidebarProvider>
-        <div className="min-h-screen w-full bg-gradient-gentle flex">
+        <div className="min-h-screen w-full bg-black flex">
           <AppSidebar />
           
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col bg-black">
             <Header 
               user={user} 
               onSignOut={() => {
@@ -69,7 +69,9 @@ const Index = () => {
               onAuthClick={() => setShowAuthModal(true)}
             />
             
-            <Outlet context={{ user }} />
+            <main className="flex-1 bg-black">
+              <Outlet context={{ user }} />
+            </main>
           </div>
         </div>
         

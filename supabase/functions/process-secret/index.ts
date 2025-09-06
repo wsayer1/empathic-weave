@@ -26,7 +26,8 @@ serve(async (req) => {
       );
     }
 
-    console.log('Processing secret:', secret_text.substring(0, 50) + '...');
+    console.log('Processing secret for user:', user_id || 'anonymous');
+    console.log('Secret text:', secret_text.substring(0, 50) + '...');
 
     // Generate embedding using OpenAI
     const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
@@ -88,7 +89,7 @@ serve(async (req) => {
 
     // If user is authenticated, exclude their own secrets from similar results
     if (user_id) {
-      query = query.or(`user_id.neq.${user_id},user_id.is.null`);
+      query = query.neq('user_id', user_id);
     }
 
     const { data: allSecrets, error: selectError } = await query;
@@ -147,7 +148,10 @@ serve(async (req) => {
       .sort((a, b) => b.similarity - a.similarity)
       .slice(0, 3); // Get top 3 most similar
 
-    console.log('Found', similarities.length, 'similar secrets');
+    console.log(`Found ${similarities.length} similar secrets for user ${user_id || 'anonymous'}`);
+    if (user_id) {
+      console.log('Excluded user own secrets from results');
+    }
 
     // Remove embedding from response to keep it clean
     const responseSecret = {

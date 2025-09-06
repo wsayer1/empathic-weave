@@ -54,28 +54,50 @@ const Index = () => {
     return <AuthForm onAuthSuccess={() => setShowAuth(false)} />;
   }
 
-  return (
-    <SidebarProvider>
-      <div className="min-h-screen w-full bg-gradient-gentle flex">
-        <AppSidebar />
-        
-        <div className="flex-1 flex flex-col">
-          <Header 
-            user={user} 
-            onSignOut={() => {
-              setUser(null);
-              setSession(null);
-              handleNewSecret();
-            }}
-            onAuthClick={() => setShowAuth(true)}
-          />
+  // If user is authenticated, show full app with sidebar
+  if (user) {
+    return (
+      <SidebarProvider>
+        <div className="min-h-screen w-full bg-gradient-gentle flex">
+          <AppSidebar />
           
-          <Outlet context={{ user }} />
+          <div className="flex-1 flex flex-col">
+            <Header 
+              user={user} 
+              onSignOut={() => {
+                setUser(null);
+                setSession(null);
+                handleNewSecret();
+              }}
+              onAuthClick={() => setShowAuth(true)}
+            />
+            
+            <Outlet context={{ user }} />
+          </div>
         </div>
-      </div>
+        
+        {showAuth && <AuthForm onAuthSuccess={() => setShowAuth(false)} />}
+      </SidebarProvider>
+    );
+  }
+
+  // If user is not authenticated, show clean layout without sidebar
+  return (
+    <div className="min-h-screen w-full bg-gradient-gentle flex flex-col">
+      <Header 
+        user={user} 
+        onSignOut={() => {
+          setUser(null);
+          setSession(null);
+          handleNewSecret();
+        }}
+        onAuthClick={() => setShowAuth(true)}
+      />
+      
+      <Outlet context={{ user }} />
       
       {showAuth && <AuthForm onAuthSuccess={() => setShowAuth(false)} />}
-    </SidebarProvider>
+    </div>
   );
 };
 

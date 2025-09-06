@@ -11,18 +11,36 @@ const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
+console.log('Environment check:');
+console.log('OpenAI API Key exists:', !!openAIApiKey);
+console.log('Supabase URL exists:', !!supabaseUrl);
+console.log('Supabase Anon Key exists:', !!supabaseAnonKey);
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { content, user_id, is_anonymous } = await req.json();
+    console.log('Function called with method:', req.method);
+    const body = await req.json();
+    console.log('Request body received:', Object.keys(body));
+    
+    const { content, user_id, is_anonymous } = body;
 
     if (!content || content.trim() === '') {
+      console.log('Error: Missing content');
       return new Response(
         JSON.stringify({ error: 'Secret text is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!openAIApiKey) {
+      console.log('Error: Missing OpenAI API key');
+      return new Response(
+        JSON.stringify({ error: 'OpenAI API key not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

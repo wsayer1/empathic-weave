@@ -83,7 +83,7 @@ serve(async (req) => {
     // Exclude the just-inserted secret and user's own secrets if user_id is provided
     let query = supabase
       .from('secrets')
-      .select('id, secret_text, created_at')
+      .select('id, secret_text, created_at, embedding')
       .neq('id', newSecret.id);
 
     // If user is authenticated, exclude their own secrets from similar results

@@ -40,11 +40,6 @@ const NewSecret = () => {
           });
           return;
         }
-        
-        toast({
-          title: "Secret removed",
-          description: "Your previous secret has been deleted.",
-        });
       } catch (error) {
         console.error('Unexpected error:', error);
         toast({

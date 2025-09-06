@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import AuthForm from "@/components/AuthForm";
 import SecretForm from "@/components/SecretForm";
 import SimilarSecrets from "@/components/SimilarSecrets";
+import MessageThread from "@/components/MessageThread";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
@@ -13,6 +14,7 @@ const Index = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [submittedSecret, setSubmittedSecret] = useState<any>(null);
   const [similarSecrets, setSimilarSecrets] = useState<any[]>([]);
+  const [activeThread, setActiveThread] = useState<{ userSecret: any; otherSecret: any } | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -47,14 +49,18 @@ const Index = () => {
   const handleNewSecret = () => {
     setSubmittedSecret(null);
     setSimilarSecrets([]);
+    setActiveThread(null);
   };
 
   const handleConnect = async (secretId: string) => {
-    // This would implement the matching/connection logic
-    toast({
-      title: "Connection request sent",
-      description: "You'll be notified if they want to connect too.",
-    });
+    // Find the selected secret
+    const selectedSecret = similarSecrets.find(secret => secret.id === secretId);
+    if (selectedSecret && submittedSecret) {
+      setActiveThread({
+        userSecret: submittedSecret,
+        otherSecret: selectedSecret
+      });
+    }
   };
 
   if (loading) {
@@ -83,23 +89,31 @@ const Index = () => {
       
       <main className="container mx-auto px-4 py-8">
         {submittedSecret ? (
-          <div className="space-y-8">
-            <SimilarSecrets
-              userSecret={submittedSecret}
-              similarSecrets={similarSecrets}
-              user={user}
-              onConnect={handleConnect}
+          activeThread ? (
+            <MessageThread
+              userSecret={activeThread.userSecret}
+              otherSecret={activeThread.otherSecret}
+              onBack={() => setActiveThread(null)}
             />
-            
-            <div className="text-center">
-              <button
-                onClick={handleNewSecret}
-                className="text-primary hover:text-primary/80 transition-gentle font-medium"
-              >
-                Share Another Secret
-              </button>
+          ) : (
+            <div className="space-y-8">
+              <SimilarSecrets
+                userSecret={submittedSecret}
+                similarSecrets={similarSecrets}
+                user={user}
+                onConnect={handleConnect}
+              />
+              
+              <div className="text-center">
+                <button
+                  onClick={handleNewSecret}
+                  className="text-primary hover:text-primary/80 transition-gentle font-medium"
+                >
+                  Share Another Secret
+                </button>
+              </div>
             </div>
-          </div>
+          )
         ) : (
           <div className="space-y-8">
             <div className="text-center max-w-3xl mx-auto fade-in">

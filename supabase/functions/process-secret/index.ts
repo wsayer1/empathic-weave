@@ -104,6 +104,25 @@ serve(async (req) => {
       );
     }
 
+    // Helper function to safely parse vector strings into arrays
+    const parseEmbedding = (embedding: any): number[] | null => {
+      try {
+        if (Array.isArray(embedding)) {
+          return embedding;
+        }
+        if (typeof embedding === 'string') {
+          const parsed = JSON.parse(embedding);
+          if (Array.isArray(parsed) && parsed.length === 1536 && parsed.every(n => typeof n === 'number')) {
+            return parsed;
+          }
+        }
+        return null;
+      } catch (error) {
+        console.error('Error parsing embedding:', error);
+        return null;
+      }
+    };
+
     // Calculate cosine similarity in JavaScript (since we can't use pgvector functions in JS client)
     const calculateCosineSimilarity = (a: number[], b: number[]) => {
       const dotProduct = a.reduce((sum, val, i) => sum + val * b[i], 0);
@@ -114,11 +133,17 @@ serve(async (req) => {
 
     // Calculate similarities for all secrets that have embeddings
     const similarities = allSecrets
-      .filter(secret => secret.embedding && Array.isArray(secret.embedding))
-      .map(secret => ({
-        ...secret,
-        similarity: calculateCosineSimilarity(embedding, secret.embedding)
-      }))
+      .map(secret => {
+        const parsedEmbedding = parseEmbedding(secret.embedding);
+        if (!parsedEmbedding) return null;
+        
+        return {
+          ...secret,
+          parsedEmbedding,
+          similarity: calculateCosineSimilarity(embedding, parsedEmbedding)
+        };
+      })
+      .filter(secret => secret !== null)
       .sort((a, b) => b.similarity - a.similarity)
       .slice(0, 3); // Get top 3 most similar
 

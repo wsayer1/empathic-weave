@@ -76,6 +76,10 @@ All colors MUST be HSL.
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Hot Takes Theme Colors */
+    --hot-red: 15 86% 55%;
+    --hot-orange: 20 82% 65%;
   }
 
   .dark {
@@ -114,6 +118,10 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Hot Takes Theme Colors */
+    --hot-red: 15 86% 55%;
+    --hot-orange: 20 82% 65%;
   }
 }
 

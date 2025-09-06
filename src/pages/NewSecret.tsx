@@ -40,7 +40,7 @@ const NewSecret = () => {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-8 py-8 min-h-screen bg-black">
       {submittedSecret ? (
         activeThread ? (
           <MessageThread
@@ -68,16 +68,13 @@ const NewSecret = () => {
           </div>
         )
       ) : (
-        <div className="space-y-8">
-          <div className="text-center max-w-3xl mx-auto fade-in">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Share Your{" "}
-              <span className="bg-gradient-trust bg-clip-text text-transparent">
-                Secrets
-              </span>
+        <div className="space-y-12 py-16">
+          <div className="text-center max-w-4xl mx-auto fade-in">
+            <h1 className="text-5xl md:text-7xl font-lacquer mb-8 tracking-wider" style={{ color: 'hsl(var(--hot-red))' }}>
+              SHARE YOUR HOT TAKE
             </h1>
-            <p className="text-xl text-muted-foreground leading-relaxed">
-              A safe space to express your innermost thoughts anonymously and connect with others who truly understand your experiences.
+            <p className="text-2xl text-yellow-400 font-young-serif leading-relaxed uppercase tracking-wide">
+              IF WE HAVE A SIMILAR HOT TAKE ON RECORD, WE'LL MATCH YOU IN AN ANONYMOUS CHAT
             </p>
           </div>
           

@@ -83,7 +83,7 @@ const Index = () => {
 
   // If user is not authenticated, show clean layout without sidebar
   return (
-    <div className="min-h-screen w-full bg-gradient-gentle flex flex-col">
+    <div className="min-h-screen w-full bg-black flex flex-col">
       <Header 
         user={user} 
         onSignOut={() => {

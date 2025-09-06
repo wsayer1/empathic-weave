@@ -30,19 +30,16 @@ export default function Header({ user, onSignOut, onAuthClick }: HeaderProps) {
   };
 
   return (
-    <header className="w-full bg-white/80 backdrop-blur-sm border-b border-border/50 sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-gradient-trust rounded-lg flex items-center justify-center">
-            <Heart className="w-5 h-5 text-white" />
-          </div>
-          <h1 className="text-xl font-bold text-foreground">Secrets</h1>
+    <header className="w-full bg-transparent border-none sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-between">
+        <div className="flex items-center">
+          <h1 className="text-2xl font-lacquer text-white tracking-wider">HOT TAKES</h1>
         </div>
 
         <div className="flex items-center gap-3">
           {user ? (
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 text-sm text-white/70">
                 <User className="w-4 h-4" />
                 <span>Anonymous User</span>
               </div>
@@ -50,7 +47,7 @@ export default function Header({ user, onSignOut, onAuthClick }: HeaderProps) {
                 onClick={handleSignOut}
                 variant="outline"
                 size="sm"
-                className="transition-gentle hover:bg-destructive/5 hover:border-destructive/30 hover:text-destructive"
+                className="bg-muted/20 border-muted text-white hover:bg-muted/30"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
@@ -60,11 +57,10 @@ export default function Header({ user, onSignOut, onAuthClick }: HeaderProps) {
             <Button
               onClick={onAuthClick}
               variant="outline"
-              size="sm"
-              className="transition-gentle hover:bg-primary/5 hover:border-primary/30"
+              size="lg"
+              className="bg-muted/20 border-muted text-white hover:bg-muted/30 px-8 py-3 text-lg font-medium rounded-lg"
             >
-              <User className="w-4 h-4 mr-2" />
-              Sign In
+              LOG IN
             </Button>
           )}
         </div>

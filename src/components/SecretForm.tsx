@@ -82,53 +82,35 @@ export default function SecretForm({ user, onSecretSubmitted }: SecretFormProps)
   const isOverLimit = characterCount > 1500;
 
   return (
-    <Card className="w-full max-w-2xl mx-auto glass shadow-medium border-0">
-      
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Textarea
-              value={secretText}
-              onChange={(e) => setSecretText(e.target.value)}
-              placeholder="Share what's on your mind... It could be a fear, a dream, a confession, or anything you've kept to yourself."
-              className={`min-h-[150px] resize-none transition-gentle focus:ring-primary/20 ${
-                isOverLimit ? 'border-destructive focus:ring-destructive/20' : ''
-              }`}
-              disabled={loading}
-            />
-            
-            <div className="flex justify-between items-center text-sm">
-              <span className="text-muted-foreground">
-                {user ? 'Logged in' : 'Anonymous'} • Always private
-              </span>
-              <span className={`${
-                isOverLimit ? 'text-destructive' : 
-                isNearLimit ? 'text-orange-500' : 'text-muted-foreground'
-              }`}>
-                {characterCount}/1500
-              </span>
-            </div>
-          </div>
+    <div className="w-full max-w-4xl mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <div className="space-y-4">
+          <Textarea
+            value={secretText}
+            onChange={(e) => setSecretText(e.target.value)}
+            placeholder="The Dating scene in SF is fucked"
+            className="min-h-[200px] bg-muted/40 border-0 text-white text-xl p-6 rounded-2xl placeholder:text-muted-foreground/60 resize-none focus:ring-0 focus:outline-none"
+            disabled={loading}
+          />
+        </div>
 
+        <div className="text-center">
           <Button
             type="submit"
             disabled={loading || !secretText.trim() || isOverLimit}
-            className="w-full btn-primary"
+            className="px-12 py-4 text-xl font-semibold bg-orange-400 hover:bg-orange-500 text-black border-0 rounded-xl transition-gentle"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Processing...
+                <Loader2 className="w-5 h-5 animate-spin mr-3" />
+                PROCESSING...
               </>
             ) : (
-              <>
-                <Send className="w-4 h-4 mr-2" />
-                Share Secret
-              </>
+              "SUBMIT ANONYMOUSLY"
             )}
           </Button>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+      </form>
+    </div>
   );
 }

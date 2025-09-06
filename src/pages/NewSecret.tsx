@@ -55,16 +55,8 @@ const NewSecret = () => {
               similarSecrets={similarSecrets}
               user={user}
               onConnect={handleConnect}
+              onNewSecret={handleNewSecret}
             />
-            
-            <div className="text-center">
-              <button
-                onClick={handleNewSecret}
-                className="text-primary hover:text-primary/80 transition-gentle font-medium"
-              >
-                Share Another Secret
-              </button>
-            </div>
           </div>
         )
       ) : (

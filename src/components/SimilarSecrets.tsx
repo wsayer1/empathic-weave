@@ -19,9 +19,10 @@ interface SimilarSecretsProps {
   similarSecrets: Secret[];
   user?: any;
   onConnect?: (secretId: string) => void;
+  onNewSecret?: () => void;
 }
 
-export default function SimilarSecrets({ userSecret, similarSecrets, user, onConnect }: SimilarSecretsProps) {
+export default function SimilarSecrets({ userSecret, similarSecrets, user, onConnect, onNewSecret }: SimilarSecretsProps) {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   
   const getSimilarityBadge = (similarity: number) => {
@@ -43,14 +44,10 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
       {/* Similar secrets */}
       {similarSecrets.length > 0 ? (
         <div className="space-y-6">
-          <div className="text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-trust rounded-xl mb-4">
-              <Heart className="w-6 h-6 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold mb-2">People Who Understand</h2>
-            <p className="text-muted-foreground">
-              These anonymous shares resonate with your experience
-            </p>
+          <div className="text-center mb-8">
+            <h2 className="text-4xl font-lacquer text-gray-400 tracking-wider mb-4">
+              THESE PEOPLE GET YOU
+            </h2>
           </div>
 
           <div className="space-y-6">
@@ -59,52 +56,66 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
               const similarityPercentage = Math.round((secret.similarity || 0) * 100);
               
               return (
-                <Card key={secret.id} className="secret-card group hover-scale">
-                  <CardContent className="flex items-start gap-6 pt-6">
+                <Card key={secret.id} className="bg-gray-800 border-gray-700 rounded-2xl p-6">
+                  <div className="flex items-center justify-between">
                     {/* Left content - secret text and metadata */}
-                    <div className="flex-1 space-y-4">
+                    <div className="flex-1 space-y-3">
                       {/* Main secret text */}
-                      <p className="text-foreground leading-relaxed text-base font-medium">
+                      <p className="text-white text-lg font-medium leading-relaxed">
                         {secret.secret_text}
                       </p>
                       
-                      {/* Similarity score */}
-                      <div className="flex items-center gap-3">
-                        <Badge className={`${badge.color} text-sm font-medium px-3 py-1`}>
-                          {similarityPercentage}% Match
-                        </Badge>
-                        <span className="text-xs text-muted-foreground">
-                          {badge.label}
+                      {/* Metadata row */}
+                      <div className="flex items-center gap-4 text-sm text-gray-400">
+                        <span className="bg-green-600 text-white px-2 py-1 rounded font-medium">
+                          {similarityPercentage}% match
                         </span>
-                      </div>
-                      
-                      {/* Secondary information */}
-                      <div className="flex items-center justify-between text-xs text-muted-foreground border-t pt-3">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-3 h-3" />
-                          <span>Anonymous</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-3 h-3" />
-                          <span>{formatDistanceToNow(new Date(secret.created_at), { addSuffix: true })}</span>
-                        </div>
+                        <span>Anonymous</span>
+                        <span>{formatDistanceToNow(new Date(secret.created_at), { addSuffix: true })}</span>
                       </div>
                     </div>
                     
-                    {/* Right side - prominent message button */}
-                    <div className="flex-shrink-0">
+                    {/* Right side - message button */}
+                    <div className="ml-6">
                       <Button
                         onClick={() => handleMessageClick(secret.id)}
-                        className="btn-primary px-6 py-3"
+                        className="bg-orange-500 hover:bg-orange-600 text-black font-medium px-6 py-2 rounded-full"
                       >
-                        <MessageCircle className="w-5 h-5 mr-2" />
-                        Message
+                        Message Anonymously
                       </Button>
                     </div>
-                  </CardContent>
+                  </div>
                 </Card>
               );
             })}
+          </div>
+
+          {/* Bottom actions section */}
+          <div className="text-center space-y-4 mt-12">
+            <div className="text-gray-400 text-sm">
+              <button 
+                onClick={() => setAuthModalOpen(true)}
+                className="underline hover:text-gray-300 transition-colors"
+              >
+                Create an Account
+              </button>
+              {" "}to see more matches & save your secret anonymously,
+              <br />
+              so others can message you if your secrets match.
+            </div>
+            
+            <div className="text-gray-400 text-sm">
+              or
+            </div>
+            
+            <div className="text-gray-400 text-sm">
+              <button 
+                onClick={onNewSecret}
+                className="underline hover:text-gray-300 transition-colors"
+              >
+                Remove Secret and Share Another
+              </button>
+            </div>
           </div>
         </div>
       ) : (

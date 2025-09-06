@@ -13,6 +13,7 @@ interface OutletContext {
   user?: User | null;
 }
 
+// Fresh compilation to clear module cache
 const NewSecret = () => {
   const { user } = useOutletContext<OutletContext>();
   const [submittedSecret, setSubmittedSecret] = useState<any>(null);

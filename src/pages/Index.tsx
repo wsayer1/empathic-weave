@@ -42,11 +42,6 @@ const Index = () => {
   const handleSecretSubmitted = (data: { secret: any; similar_secrets: any[] }) => {
     setSubmittedSecret(data.secret);
     setSimilarSecrets(data.similar_secrets);
-    
-    toast({
-      title: "Secret processed",
-      description: `Found ${data.similar_secrets.length} similar experiences`,
-    });
   };
 
   const handleNewSecret = () => {

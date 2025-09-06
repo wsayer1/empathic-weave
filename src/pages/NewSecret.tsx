@@ -23,7 +23,39 @@ const NewSecret = () => {
     setSimilarSecrets(data.similar_secrets);
   };
 
-  const handleNewSecret = () => {
+  const handleNewSecret = async () => {
+    if (submittedSecret?.id) {
+      try {
+        const { error } = await supabase
+          .from('secrets')
+          .delete()
+          .eq('id', submittedSecret.id);
+        
+        if (error) {
+          console.error('Error deleting secret:', error);
+          toast({
+            title: "Error",
+            description: "Failed to delete the previous secret. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        toast({
+          title: "Secret removed",
+          description: "Your previous secret has been deleted.",
+        });
+      } catch (error) {
+        console.error('Unexpected error:', error);
+        toast({
+          title: "Error", 
+          description: "An unexpected error occurred. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
     setSubmittedSecret(null);
     setSimilarSecrets([]);
     setActiveThread(null);

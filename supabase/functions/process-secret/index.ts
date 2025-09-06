@@ -17,9 +17,9 @@ serve(async (req) => {
   }
 
   try {
-    const { secret_text, user_id } = await req.json();
+    const { content, user_id, is_anonymous } = await req.json();
 
-    if (!secret_text || secret_text.trim() === '') {
+    if (!content || content.trim() === '') {
       return new Response(
         JSON.stringify({ error: 'Secret text is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -27,7 +27,7 @@ serve(async (req) => {
     }
 
     console.log('Processing secret for user:', user_id || 'anonymous');
-    console.log('Secret text:', secret_text.substring(0, 50) + '...');
+    console.log('Secret text:', content.substring(0, 50) + '...');
 
     // Generate embedding using OpenAI
     const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
@@ -38,7 +38,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         model: 'text-embedding-3-small',
-        input: secret_text,
+        input: content,
       }),
     });
 
@@ -63,9 +63,9 @@ serve(async (req) => {
     const { data: newSecret, error: insertError } = await supabase
       .from('secrets')
       .insert({
-        secret_text,
+        content,
         embedding,
-        user_id: user_id || null
+        user_id: is_anonymous ? null : user_id
       })
       .select()
       .single();
@@ -84,7 +84,7 @@ serve(async (req) => {
     // Exclude the just-inserted secret and user's own secrets if user_id is provided
     let query = supabase
       .from('secrets')
-      .select('id, secret_text, created_at, user_id, embedding')
+      .select('id, content, created_at, user_id, embedding')
       .neq('id', newSecret.id);
 
     // If user is authenticated, exclude their own secrets AND anonymous secrets from similar results
@@ -157,14 +157,14 @@ serve(async (req) => {
     // Remove embedding from response to keep it clean
     const responseSecret = {
       id: newSecret.id,
-      secret_text: newSecret.secret_text,
+      content: newSecret.content,
       created_at: newSecret.created_at,
       user_id: newSecret.user_id
     };
 
     const responseSimilar = similarities.map(s => ({
       id: s.id,
-      secret_text: s.secret_text,
+      content: s.content,
       created_at: s.created_at,
       user_id: s.user_id,
       similarity: s.similarity

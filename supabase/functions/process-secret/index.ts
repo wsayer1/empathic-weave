@@ -11,36 +11,18 @@ const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
-console.log('Environment check:');
-console.log('OpenAI API Key exists:', !!openAIApiKey);
-console.log('Supabase URL exists:', !!supabaseUrl);
-console.log('Supabase Anon Key exists:', !!supabaseAnonKey);
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    console.log('Function called with method:', req.method);
-    const body = await req.json();
-    console.log('Request body received:', Object.keys(body));
-    
-    const { secret_text, user_id, is_anonymous } = body;
+    const { secret_text, user_id } = await req.json();
 
     if (!secret_text || secret_text.trim() === '') {
-      console.log('Error: Missing secret_text');
       return new Response(
         JSON.stringify({ error: 'Secret text is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    if (!openAIApiKey) {
-      console.log('Error: Missing OpenAI API key');
-      return new Response(
-        JSON.stringify({ error: 'OpenAI API key not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -83,7 +65,7 @@ serve(async (req) => {
       .insert({
         secret_text,
         embedding,
-        user_id: is_anonymous ? null : user_id
+        user_id: user_id || null
       })
       .select()
       .single();
@@ -175,14 +157,14 @@ serve(async (req) => {
     // Remove embedding from response to keep it clean
     const responseSecret = {
       id: newSecret.id,
-      content: newSecret.secret_text,
+      secret_text: newSecret.secret_text,
       created_at: newSecret.created_at,
       user_id: newSecret.user_id
     };
 
     const responseSimilar = similarities.map(s => ({
       id: s.id,
-      content: s.secret_text,
+      secret_text: s.secret_text,
       created_at: s.created_at,
       user_id: s.user_id,
       similarity: s.similarity

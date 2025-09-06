@@ -18,11 +18,6 @@ export default {
 			}
 		},
 		extend: {
-			fontFamily: {
-				sans: ["Inter", "sans-serif"],
-				lacquer: ["Lacquer", "cursive"],
-				lekton: ["Lekton", "monospace"],
-			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

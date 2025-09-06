@@ -173,7 +173,7 @@ const MySecrets = () => {
                       onClick={() => handleDeleteSecret(secret.id)}
                       variant="outline"
                       size="sm"
-                      className="bg-red-900/30 border-red-600 text-red-400 hover:bg-red-900/50 hover:text-red-300 hover:border-red-500 shrink-0 min-w-[40px] h-10"
+                      className="bg-red-900/30 border-0 text-red-400 hover:bg-red-900/50 hover:text-red-300 shrink-0 min-w-[40px] h-10"
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>

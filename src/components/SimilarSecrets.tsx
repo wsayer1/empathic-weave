@@ -67,36 +67,46 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
           <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
             {similarSecrets.map((secret, index) => {
               const badge = getSimilarityBadge(secret.similarity || 0);
+              const similarityPercentage = Math.round((secret.similarity || 0) * 100);
               
               return (
-                <Card key={secret.id} className="secret-card group">
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2 text-base">
-                        <Users className="w-4 h-4 text-muted-foreground" />
-                        Anonymous
-                      </CardTitle>
-                      <Badge className={`${badge.color} text-xs`}>
-                        {badge.label}
-                      </Badge>
+                <Card key={secret.id} className="secret-card group hover-scale">
+                  <CardContent className="space-y-4 pt-6">
+                    {/* Main secret text - prominent */}
+                    <div className="space-y-3">
+                      <p className="text-foreground leading-relaxed text-base font-medium">
+                        {secret.secret_text}
+                      </p>
                     </div>
-                    <CardDescription className="flex items-center gap-2">
-                      <Calendar className="w-3 h-3" />
-                      {formatDistanceToNow(new Date(secret.created_at), { addSuffix: true })}
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent className="space-y-4">
-                    <p className="text-foreground leading-relaxed text-sm">
-                      {secret.secret_text}
-                    </p>
+                    
+                    {/* Similarity score - prominent badge */}
+                    <div className="flex items-center justify-between">
+                      <Badge className={`${badge.color} text-sm font-medium px-3 py-1`}>
+                        {similarityPercentage}% Match
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {badge.label}
+                      </span>
+                    </div>
+                    
+                    {/* Secondary information - less prominent */}
+                    <div className="flex items-center justify-between text-xs text-muted-foreground border-t pt-3">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-3 h-3" />
+                        <span>Anonymous</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-3 h-3" />
+                        <span>{formatDistanceToNow(new Date(secret.created_at), { addSuffix: true })}</span>
+                      </div>
+                    </div>
                     
                     {user && onConnect && (
                       <Button
                         onClick={() => onConnect(secret.id)}
                         variant="outline"
                         size="sm"
-                        className="w-full transition-gentle hover:bg-primary/5 hover:border-primary/30"
+                        className="w-full transition-gentle hover:bg-primary/5 hover:border-primary/30 mt-4"
                       >
                         <MessageCircle className="w-4 h-4 mr-2" />
                         Connect Anonymously

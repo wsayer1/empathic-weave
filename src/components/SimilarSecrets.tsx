@@ -10,6 +10,7 @@ interface Secret {
   id: string;
   secret_text: string;
   created_at: string;
+  user_id?: string;
   similarity?: number;
 }
 

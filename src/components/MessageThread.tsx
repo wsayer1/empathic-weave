@@ -1,16 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Send, Users, Calendar } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Secret {
   id: string;
   secret_text: string;
   created_at: string;
+  user_id?: string;
   similarity?: number;
+}
+
+interface Message {
+  id: string;
+  content: string;
+  sender_id: string;
+  created_at: string;
 }
 
 interface MessageThreadProps {
@@ -21,20 +31,181 @@ interface MessageThreadProps {
 
 export default function MessageThread({ userSecret, otherSecret, onBack }: MessageThreadProps) {
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<Array<{ id: string; text: string; sender: 'user' | 'other'; timestamp: string }>>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [matchId, setMatchId] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const handleSendMessage = () => {
-    if (!message.trim()) return;
-    
-    const newMessage = {
-      id: Date.now().toString(),
-      text: message,
-      sender: 'user' as const,
-      timestamp: new Date().toISOString()
+  // Get current user and find/create match
+  useEffect(() => {
+    const initializeChat = async () => {
+      try {
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast({
+            title: "Authentication required",
+            description: "Please sign in to send messages.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        setCurrentUserId(user.id);
+
+        // Find existing match between the two secrets
+        const { data: existingMatch, error: matchError } = await supabase
+          .from('matches')
+          .select('id, user1_id, user2_id')
+          .or(`and(secret1_id.eq.${userSecret.id},secret2_id.eq.${otherSecret.id}),and(secret1_id.eq.${otherSecret.id},secret2_id.eq.${userSecret.id})`)
+          .single();
+
+        if (matchError && matchError.code !== 'PGRST116') {
+          console.error('Error finding match:', matchError);
+          return;
+        }
+
+        if (existingMatch) {
+          setMatchId(existingMatch.id);
+        } else {
+          // Create new match
+          const otherUserId = otherSecret.user_id;
+          if (!otherUserId) {
+            toast({
+              title: "Cannot create conversation",
+              description: "The other user's secret is anonymous.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          const { data: newMatch, error: createError } = await supabase
+            .from('matches')
+            .insert({
+              user1_id: user.id,
+              user2_id: otherUserId,
+              secret1_id: userSecret.id,
+              secret2_id: otherSecret.id,
+              status: 'active'
+            })
+            .select('id')
+            .single();
+
+          if (createError) {
+            console.error('Error creating match:', createError);
+            toast({
+              title: "Error creating conversation",
+              description: "Failed to start the conversation. Please try again.",
+              variant: "destructive",
+            });
+            return;
+          }
+
+          setMatchId(newMatch.id);
+        }
+      } catch (error) {
+        console.error('Error initializing chat:', error);
+        toast({
+          title: "Error",
+          description: "Failed to initialize the chat.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
     };
+
+    initializeChat();
+  }, [userSecret.id, otherSecret.id, toast]);
+
+  // Load messages when match is found
+  useEffect(() => {
+    if (matchId) {
+      loadMessages();
+      
+      // Set up real-time subscription for new messages
+      const channel = supabase
+        .channel(`messages-${matchId}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'messages',
+            filter: `match_id=eq.${matchId}`
+          },
+          (payload) => {
+            const newMessage = payload.new as Message;
+            setMessages(prev => {
+              // Avoid duplicates
+              const exists = prev.some(msg => msg.id === newMessage.id);
+              if (exists) return prev;
+              return [...prev, newMessage];
+            });
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [matchId]);
+
+  const loadMessages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('id, content, sender_id, created_at')
+        .eq('match_id', matchId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error loading messages:', error);
+        return;
+      }
+
+      setMessages(data || []);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!message.trim() || !matchId || !currentUserId) return;
     
-    setMessages(prev => [...prev, newMessage]);
-    setMessage("");
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          match_id: matchId,
+          sender_id: currentUserId,
+          content: message.trim()
+        })
+        .select('id, content, sender_id, created_at')
+        .single();
+
+      if (error) {
+        console.error('Error sending message:', error);
+        toast({
+          title: "Error sending message",
+          description: "Failed to send your message. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setMessages(prev => [...prev, data]);
+      setMessage("");
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Network error",
+        description: "Please check your connection and try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getSimilarityBadge = (similarity: number) => {
@@ -45,6 +216,16 @@ export default function MessageThread({ userSecret, otherSecret, onBack }: Messa
 
   const badge = getSimilarityBadge(otherSecret.similarity || 0);
   const similarityPercentage = Math.round((otherSecret.similarity || 0) * 100);
+
+  if (loading) {
+    return (
+      <div className="w-full max-w-4xl mx-auto">
+        <div className="text-center py-8">
+          <div className="animate-pulse-subtle text-muted-foreground">Loading conversation...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6 fade-in">
@@ -134,25 +315,28 @@ export default function MessageThread({ userSecret, otherSecret, onBack }: Messa
                 <p>No messages yet. Start the conversation!</p>
               </div>
             ) : (
-              messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
+              messages.map((msg) => {
+                const isCurrentUser = msg.sender_id === currentUserId;
+                return (
                   <div
-                    className={`max-w-[70%] rounded-lg px-4 py-2 ${
-                      msg.sender === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground'
-                    }`}
+                    key={msg.id}
+                    className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}
                   >
-                    <p className="text-sm">{msg.text}</p>
-                    <p className="text-xs opacity-70 mt-1">
-                      {formatDistanceToNow(new Date(msg.timestamp), { addSuffix: true })}
-                    </p>
+                    <div
+                      className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                        isCurrentUser
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
+                      <p className="text-sm">{msg.content}</p>
+                      <p className="text-xs opacity-70 mt-1">
+                        {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 

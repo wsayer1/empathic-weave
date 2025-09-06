@@ -29,7 +29,7 @@ export function AppSidebar() {
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "bg-gray-700 font-lacquer tracking-wider" : "hover:bg-gray-800/50 font-lacquer tracking-wider";
+    isActive ? "bg-gray-700 font-lacquer tracking-wider" : "font-lacquer tracking-wider";
   
   const isCollapsed = state === "collapsed";
 
@@ -66,7 +66,7 @@ export function AppSidebar() {
             <SidebarMenu className="space-y-2 p-4">
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton asChild className="hover:bg-gray-800/50">
                     <NavLink to={item.url} end className={getNavCls}>
                       <item.icon className="h-4 w-4 text-white" />
                       {!isCollapsed && <span className="text-white">{item.title}</span>}

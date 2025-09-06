@@ -71,28 +71,13 @@ const MySecrets = () => {
 
       if (error) {
         console.error('Error deleting secret:', error);
-        toast({
-          title: "Error deleting hot take",
-          description: "Failed to delete your hot take. Please try again.",
-          variant: "destructive",
-        });
         return;
       }
 
       // Remove from local state
       setSecrets(secrets.filter(secret => secret.id !== secretId));
-      
-      toast({
-        title: "Hot take deleted",
-        description: "Your hot take has been successfully deleted.",
-      });
     } catch (error) {
       console.error('Error:', error);
-      toast({
-        title: "Network error",
-        description: "Please check your connection and try again.",
-        variant: "destructive",
-      });
     }
   };
 

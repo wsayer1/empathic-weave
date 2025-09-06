@@ -3,8 +3,9 @@ import { User } from '@supabase/supabase-js';
 import { useOutletContext } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Calendar, Lock } from "lucide-react";
+import { Calendar, Lock, Trash2 } from "lucide-react";
 
 interface OutletContext {
   user?: User | null;
@@ -58,6 +59,40 @@ const MySecrets = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteSecret = async (secretId: string) => {
+    try {
+      const { error } = await supabase
+        .from('secrets')
+        .delete()
+        .eq('id', secretId);
+
+      if (error) {
+        console.error('Error deleting secret:', error);
+        toast({
+          title: "Error deleting hot take",
+          description: "Failed to delete your hot take. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Remove from local state
+      setSecrets(secrets.filter(secret => secret.id !== secretId));
+      
+      toast({
+        title: "Hot take deleted",
+        description: "Your hot take has been successfully deleted.",
+      });
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Network error",
+        description: "Please check your connection and try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -124,15 +159,25 @@ const MySecrets = () => {
             {secrets.map((secret) => (
               <Card key={secret.id} className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
                 <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center text-sm text-gray-400">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      <span className="font-lacquer tracking-wide">{formatDate(secret.created_at)}</span>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <p className="text-white leading-relaxed font-lacquer tracking-wide mb-4">
+                        {secret.secret_text}
+                      </p>
+                      <div className="flex items-center text-sm text-gray-400">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        <span className="font-lacquer tracking-wide">{formatDate(secret.created_at)}</span>
+                      </div>
                     </div>
+                    <Button
+                      onClick={() => handleDeleteSecret(secret.id)}
+                      variant="outline"
+                      size="sm"
+                      className="bg-red-900/20 border-red-700 text-red-400 hover:bg-red-900/40 hover:text-red-300 shrink-0"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <p className="text-white leading-relaxed font-lacquer tracking-wide">
-                    {secret.secret_text}
-                  </p>
                 </CardContent>
               </Card>
             ))}

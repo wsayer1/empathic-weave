@@ -29,7 +29,7 @@ export function AppSidebar() {
 
   const isActive = (path: string) => currentPath === path;
   const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "bg-gray-700 font-lacquer tracking-wider" : "font-lacquer tracking-wider";
+    isActive ? "bg-gray-900/80 font-lacquer tracking-wider" : "font-lacquer tracking-wider";
   
   const isCollapsed = state === "collapsed";
 

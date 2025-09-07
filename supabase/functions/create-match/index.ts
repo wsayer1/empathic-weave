@@ -44,31 +44,28 @@ serve(async (req) => {
     // Get the secrets to verify ownership and get user IDs
     const { data: userSecret, error: userSecretError } = await supabaseClient
       .from('secrets')
-      .select('user_id')
+      .select('*')
       .eq('id', userSecretId)
       .single()
 
     if (userSecretError || !userSecret) {
+      console.error('Error fetching user secret:', userSecretError)
       throw new Error('User secret not found')
     }
 
-    // If secret was anonymous but user just signed up, it might not be associated yet
-    if (userSecret.user_id !== user.id && userSecret.user_id !== null) {
+    console.log('User secret found:', { 
+      secretId: userSecret.id, 
+      secretUserId: userSecret.user_id, 
+      currentUserId: user.id 
+    });
+
+    // Check ownership - user must own the secret OR it must be anonymous (null user_id)
+    if (userSecret.user_id !== null && userSecret.user_id !== user.id) {
+      console.error('User does not own the specified secret:', {
+        secretUserId: userSecret.user_id,
+        currentUserId: user.id
+      });
       throw new Error('User does not own the specified secret')
-    }
-    
-    // If the secret was anonymous, associate it with the current user
-    if (userSecret.user_id === null) {
-      console.log('Associating anonymous secret with user:', user.id);
-      const { error: updateError } = await supabaseClient
-        .from('secrets')
-        .update({ user_id: user.id })
-        .eq('id', userSecretId);
-      
-      if (updateError) {
-        console.error('Error updating secret user_id:', updateError);
-        throw new Error('Failed to associate secret with user');
-      }
     }
 
     const { data: targetSecret, error: targetSecretError } = await supabaseClient
@@ -96,12 +93,19 @@ serve(async (req) => {
       )
     }
 
-    // Create the match
+    // Create the match - use the actual user IDs from the secrets
+    const user1Id = userSecret.user_id || user.id; // Fallback to current user if still null
+    const user2Id = targetSecret.user_id;
+    
+    if (!user2Id) {
+      throw new Error('Target secret has no associated user');
+    }
+    
     const { data: newMatch, error: matchError } = await supabaseClient
       .from('matches')
       .insert({
-        user1_id: user.id,
-        user2_id: targetSecret.user_id,
+        user1_id: user1Id,
+        user2_id: user2Id,
         secret1_id: userSecretId,
         secret2_id: targetSecretId,
         status: 'active'

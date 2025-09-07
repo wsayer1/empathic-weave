@@ -151,6 +151,20 @@ export type Database = {
         Args: { "": string } | { "": unknown }
         Returns: unknown
       }
+      find_similar_secrets: {
+        Args: {
+          current_user_id: string
+          input_embedding: string
+          max_results?: number
+          similarity_threshold?: number
+        }
+        Returns: {
+          id: string
+          secret_text: string
+          similarity: number
+          user_id: string
+        }[]
+      }
       halfvec_avg: {
         Args: { "": number[] }
         Returns: unknown

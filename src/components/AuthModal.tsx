@@ -11,10 +11,12 @@ interface AuthModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAuthSuccess: () => void;
+  defaultToSignUp?: boolean;
+  matchedSecretId?: string;
 }
 
-export default function AuthModal({ open, onOpenChange, onAuthSuccess }: AuthModalProps) {
-  const [isSignUp, setIsSignUp] = useState(false);
+export default function AuthModal({ open, onOpenChange, onAuthSuccess, defaultToSignUp = false, matchedSecretId }: AuthModalProps) {
+  const [isSignUp, setIsSignUp] = useState(defaultToSignUp);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);

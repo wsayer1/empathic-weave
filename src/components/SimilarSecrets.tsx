@@ -24,6 +24,7 @@ interface SimilarSecretsProps {
 
 export default function SimilarSecrets({ userSecret, similarSecrets, user, onConnect, onNewSecret }: SimilarSecretsProps) {
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [selectedSecretForMessage, setSelectedSecretForMessage] = useState<string | null>(null);
   
   const getSimilarityBadge = (similarity: number) => {
     if (similarity > 0.8) return { label: "Very Similar", color: "bg-gradient-trust text-white" };
@@ -33,6 +34,7 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
 
   const handleMessageClick = (secretId: string) => {
     if (!user) {
+      setSelectedSecretForMessage(secretId);
       setAuthModalOpen(true);
     } else if (onConnect) {
       onConnect(secretId);
@@ -140,10 +142,15 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
 
       <AuthModal 
         open={authModalOpen} 
-        onOpenChange={setAuthModalOpen}
+        onOpenChange={(open) => {
+          setAuthModalOpen(open);
+          if (!open) setSelectedSecretForMessage(null);
+        }}
+        defaultToSignUp={true}
+        matchedSecretId={selectedSecretForMessage}
         onAuthSuccess={() => {
-          // Refresh the page or trigger auth state update
-          window.location.reload();
+          // Navigate to Messages page after successful account creation
+          window.location.href = '/messages';
         }}
       />
     </div>

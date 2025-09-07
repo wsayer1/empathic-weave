@@ -12,6 +12,10 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
+if (!openAIApiKey) {
+  console.error('OPENAI_API_KEY is not configured');
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -29,6 +33,16 @@ serve(async (req) => {
 
     console.log('Processing secret for user:', user_id || 'anonymous');
     console.log('Secret text:', secret_text.substring(0, 50) + '...');
+    console.log('OpenAI API Key configured:', !!openAIApiKey);
+    console.log('Supabase URL:', supabaseUrl);
+
+    if (!openAIApiKey) {
+      console.error('OPENAI_API_KEY is not configured');
+      return new Response(
+        JSON.stringify({ error: 'OpenAI API key not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Generate embedding using OpenAI
     const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
@@ -46,8 +60,9 @@ serve(async (req) => {
     if (!embeddingResponse.ok) {
       const error = await embeddingResponse.text();
       console.error('OpenAI API error:', error);
+      console.error('OpenAI API status:', embeddingResponse.status);
       return new Response(
-        JSON.stringify({ error: 'Failed to generate embedding' }),
+        JSON.stringify({ error: 'Failed to generate embedding: ' + error }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -57,14 +72,12 @@ serve(async (req) => {
 
     console.log('Generated embedding, length:', embedding.length);
 
-    // Initialize Supabase client - use service role for anonymous users to bypass RLS
-    const supabase = createClient(
-      supabaseUrl, 
-      user_id ? supabaseAnonKey : supabaseServiceKey
-    );
+    // Initialize Supabase client - always use service role for this function
+    // since we need to bypass RLS for both authenticated and anonymous users
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Save the secret with embedding
-    const { data: newSecret, error: insertError } = await supabase
+    const { data: secretData, error: insertError } = await supabase
       .from('secrets')
       .insert({
         secret_text,
@@ -72,15 +85,19 @@ serve(async (req) => {
         user_id: user_id || null
       })
       .select()
-      .single();
+      .maybeSingle();
 
-    if (insertError) {
+    if (insertError || !secretData) {
       console.error('Error inserting secret:', insertError);
+      console.error('Insert result data:', secretData);
       return new Response(
-        JSON.stringify({ error: 'Failed to save secret' }),
+        JSON.stringify({ error: 'Failed to save secret: ' + (insertError?.message || 'No data returned') }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const newSecret = secretData;
+
 
     console.log('Secret saved with ID:', newSecret.id);
 

@@ -136,7 +136,7 @@ serve(async (req) => {
         user2_id: user2Id,
         secret1_id: userSecretId,
         secret2_id: targetSecretId,
-        status: 'active'
+        status: 'accepted'
       })
       .select()
       .maybeSingle()

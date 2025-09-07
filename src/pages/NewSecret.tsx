@@ -77,13 +77,14 @@ const NewSecret = () => {
           />
         ) : (
           <div className="space-y-8">
-            <SimilarSecrets
-              userSecret={submittedSecret}
-              similarSecrets={similarSecrets}
-              user={user}
-              onConnect={handleConnect}
-              onNewSecret={handleNewSecret}
-            />
+          <SimilarSecrets
+            userSecret={submittedSecret}
+            similarSecrets={similarSecrets}
+            user={user}
+            onConnect={handleConnect}
+            onNewSecret={handleNewSecret}
+            setUserSecret={setSubmittedSecret}
+          />
           </div>
         )
       ) : (

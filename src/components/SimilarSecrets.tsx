@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthModal from "./AuthModal";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Secret {
   id: string;
@@ -22,10 +23,12 @@ interface SimilarSecretsProps {
   user?: any;
   onConnect?: (secretId: string) => void;
   onNewSecret?: () => void;
+  setUserSecret?: (secret: Secret | null) => void;
 }
 
-export default function SimilarSecrets({ userSecret, similarSecrets, user, onConnect, onNewSecret }: SimilarSecretsProps) {
+export default function SimilarSecrets({ userSecret, similarSecrets, user, onConnect, onNewSecret, setUserSecret }: SimilarSecretsProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [selectedSecretForMessage, setSelectedSecretForMessage] = useState<string | null>(null);
   
@@ -152,56 +155,92 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
         defaultToSignUp={true}
         matchedSecretId={selectedSecretForMessage}
         onAuthSuccess={async () => {
-          console.log('Auth success callback triggered');
+          console.log('🔥 Auth success callback triggered');
           
-          // First, associate the anonymous secret with the new user
-          if (userSecret && !userSecret.user_id) {
-            try {
-              console.log('Updating anonymous secret to associate with user:', userSecret.id);
-              const { data: { user } } = await supabase.auth.getUser();
-              if (user) {
-                const { error: updateError } = await supabase
-                  .from('secrets')
-                  .update({ user_id: user.id })
-                  .eq('id', userSecret.id);
-                
-                if (updateError) {
-                  console.error('Error updating secret user_id:', updateError);
-                } else {
-                  console.log('Successfully associated secret with user');
-                }
-              }
-            } catch (error) {
-              console.error('Error associating secret with user:', error);
+          try {
+            // Get the current user
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            if (userError || !user) {
+              console.error('❌ Failed to get authenticated user:', userError);
+              toast({
+                title: "Authentication Error",
+                description: "Failed to verify your account. Please try again.",
+                variant: "destructive",
+              });
+              return;
             }
-          }
-          
-          // Create the match connection after successful account creation
-          if (selectedSecretForMessage && userSecret) {
-            try {
-              console.log('Creating match between secrets:', userSecret.id, selectedSecretForMessage);
+            
+            console.log('✅ Current user ID:', user.id);
+            
+            // First, associate the anonymous secret with the new user if needed
+            if (userSecret && !userSecret.user_id) {
+              console.log('🔗 Associating anonymous secret with user:', userSecret.id);
+              
+              const { error: updateError } = await supabase
+                .from('secrets')
+                .update({ user_id: user.id })
+                .eq('id', userSecret.id);
+              
+              if (updateError) {
+                console.error('❌ Error updating secret user_id:', updateError);
+                toast({
+                  title: "Error",
+                  description: "Failed to associate your secret with your account.",
+                  variant: "destructive",
+                });
+                return;
+              }
+              
+              console.log('✅ Successfully associated secret with user');
+              
+              // Update the local state to reflect the change
+              if (setUserSecret) {
+                setUserSecret({ ...userSecret, user_id: user.id });
+              }
+            }
+            
+            // Now create the match connection after successful account creation
+            if (selectedSecretForMessage && userSecret) {
+              console.log('💬 Creating match between secrets:', userSecret.id, 'and', selectedSecretForMessage);
+              
               const { data, error } = await supabase.functions.invoke('create-match', {
                 body: {
                   userSecretId: userSecret.id,
-                  targetSecretId: selectedSecretForMessage
-                }
+                  targetSecretId: selectedSecretForMessage,
+                },
               });
 
               if (error) {
-                console.error('Error creating match:', error);
+                console.error('❌ Error creating match:', error);
+                toast({
+                  title: "Connection Error", 
+                  description: "Failed to create connection. Please try again.",
+                  variant: "destructive",
+                });
+                // Don't return here, still navigate to messages
               } else {
-                console.log('Match created successfully:', data);
-                
-                // Navigate to Messages page using React Router
-                navigate('/messages');
+                console.log('✅ Match created successfully:', data);
+                toast({
+                  title: "Success!",
+                  description: "Connected! You can now start messaging.",
+                });
               }
-            } catch (error) {
-              console.error('Error calling create-match function:', error);
-              // Still navigate even if match creation fails
-              navigate('/messages');
             }
-          } else {
-            // Navigate to Messages page even if no match to create
+            
+            // Always navigate to Messages page after auth success
+            console.log('🧭 Navigating to messages page');
+            setAuthModalOpen(false);
+            navigate('/messages');
+            
+          } catch (error) {
+            console.error('💥 Error in auth success flow:', error);
+            toast({
+              title: "Unexpected Error",
+              description: "Something went wrong. Please try again.",
+              variant: "destructive",
+            });
+            // Still navigate to allow user to try again
+            setAuthModalOpen(false);
             navigate('/messages');
           }
         }}

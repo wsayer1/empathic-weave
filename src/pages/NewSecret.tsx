@@ -4,7 +4,6 @@ import { useOutletContext } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import SecretForm from "@/components/SecretForm";
 import SimilarSecrets from "@/components/SimilarSecrets";
-import MessageThread from "@/components/MessageThread";
 import { useToast } from "@/hooks/use-toast";
 
 interface OutletContext {
@@ -15,7 +14,6 @@ const NewSecret = () => {
   const { user } = useOutletContext<OutletContext>();
   const [submittedSecret, setSubmittedSecret] = useState<any>(null);
   const [similarSecrets, setSimilarSecrets] = useState<any[]>([]);
-  const [activeThread, setActiveThread] = useState<{ userSecret: any; otherSecret: any } | null>(null);
   const { toast } = useToast();
 
   const handleSecretSubmitted = (data: { secret: any; similar_secrets: any[] }) => {
@@ -53,48 +51,21 @@ const NewSecret = () => {
     
     setSubmittedSecret(null);
     setSimilarSecrets([]);
-    setActiveThread(null);
   };
 
-  const handleConnect = async (secretId: string) => {
-    console.log('🔗 Setting up message thread with secret:', secretId);
-    
-    const selectedSecret = similarSecrets.find(secret => secret.id === secretId);
-    if (selectedSecret && submittedSecret) {
-      console.log('✅ Found target secret, creating thread');
-      setActiveThread({
-        userSecret: submittedSecret,
-        otherSecret: selectedSecret
-      });
-    } else {
-      console.error('❌ Failed to set up thread - missing data:', {
-        selectedSecret: !!selectedSecret,
-        submittedSecret: !!submittedSecret
-      });
-    }
-  };
 
   return (
     <main className="container mx-auto px-8 py-8 min-h-screen bg-black">
       {submittedSecret ? (
-        activeThread ? (
-          <MessageThread
-            userSecret={activeThread.userSecret}
-            otherSecret={activeThread.otherSecret}
-            onBack={() => setActiveThread(null)}
-          />
-        ) : (
-          <div className="space-y-8">
+        <div className="space-y-8">
           <SimilarSecrets
             userSecret={submittedSecret}
             similarSecrets={similarSecrets}
             user={user}
-            onConnect={handleConnect}
             onNewSecret={handleNewSecret}
             setUserSecret={setSubmittedSecret}
           />
-          </div>
-        )
+        </div>
       ) : (
         <div className="space-y-12 py-16">
           <div className="text-center max-w-4xl mx-auto fade-in">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { User } from '@supabase/supabase-js';
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,6 +36,7 @@ interface Secret {
 
 const Messages = () => {
   const { user } = useOutletContext<OutletContext>();
+  const location = useLocation();
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -52,6 +53,25 @@ const Messages = () => {
       setLoading(false);
     }
   }, [user]);
+
+  // Handle auto-selection of match from navigation state  
+  useEffect(() => {
+    const state = location.state as { autoSelectMatchId?: string; newConnection?: boolean } | null;
+    if (state?.autoSelectMatchId && matches.length > 0) {
+      const matchToSelect = matches.find(m => m.id === state.autoSelectMatchId);
+      if (matchToSelect) {
+        console.log('🎯 Auto-selecting match from navigation:', matchToSelect.id);
+        handleSelectMatch(matchToSelect);
+        
+        if (state.newConnection) {
+          toast({
+            title: "Connected!",
+            description: "Your conversation is ready. Start chatting!",
+          });
+        }
+      }
+    }
+  }, [matches, location.state]);
 
   const fetchMatches = async () => {
     try {

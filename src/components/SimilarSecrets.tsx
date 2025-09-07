@@ -42,8 +42,60 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
     if (!user) {
       setSelectedSecretForMessage(secretId);
       setAuthModalOpen(true);
-    } else if (onConnect) {
-      onConnect(secretId);
+    } else {
+      // For logged-in users, create match and navigate to Messages page
+      handleCreateMatchAndNavigate(secretId);
+    }
+  };
+
+  const handleCreateMatchAndNavigate = async (targetSecretId: string) => {
+    if (!userSecret) {
+      console.error('No user secret available');
+      return;
+    }
+
+    try {
+      console.log('💬 Creating match for logged-in user:', userSecret.id, 'and', targetSecretId);
+      
+      const { data, error } = await supabase.functions.invoke('create-match', {
+        body: {
+          userSecretId: userSecret.id,
+          targetSecretId: targetSecretId,
+        },
+      });
+
+      if (error) {
+        console.error('❌ Error creating match:', error);
+        toast({
+          title: "Connection Error", 
+          description: "Failed to create connection. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('✅ Match created successfully:', data);
+      toast({
+        title: "Success!",
+        description: "Connected! Redirecting to your conversation...",
+      });
+
+      // Navigate to Messages page with the match ID to auto-select
+      console.log('🧭 Navigating to Messages page with match:', data.matchId);
+      navigate('/messages', { 
+        state: { 
+          autoSelectMatchId: data.matchId,
+          newConnection: true 
+        } 
+      });
+
+    } catch (error) {
+      console.error('💥 Error creating match:', error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -202,7 +254,7 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
               await new Promise(resolve => setTimeout(resolve, 500));
             }
             
-            // Now create the match connection and go directly to the message thread
+            // Now create the match connection and navigate to Messages page
             if (selectedSecretForMessage && userSecret && onConnect) {
               console.log('💬 Creating match between secrets:', userSecret.id, 'and', selectedSecretForMessage);
               
@@ -227,20 +279,18 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
               console.log('✅ Match created successfully:', data);
               toast({
                 title: "Success!",
-                description: "Connected! You can now start messaging.",
+                description: "Connected! Redirecting to your conversation...",
               });
 
-              // Find the target secret data and go directly to message thread
-              const targetSecret = similarSecrets.find(s => s.id === selectedSecretForMessage);
-              if (targetSecret) {
-                console.log('🧭 Going directly to message thread');
-                setAuthModalOpen(false);
-                onConnect(selectedSecretForMessage);
-              } else {
-                console.log('🧭 Target secret not found, navigating to messages page');
-                setAuthModalOpen(false);
-                navigate('/messages');
-              }
+              // Navigate to Messages page with the match ID to auto-select
+              console.log('🧭 Navigating to Messages page with match:', data.matchId);
+              setAuthModalOpen(false);
+              navigate('/messages', { 
+                state: { 
+                  autoSelectMatchId: data.matchId,
+                  newConnection: true 
+                } 
+              });
             } else {
               // Fallback to messages page if no connection handler
               console.log('🧭 No connection handler, navigating to messages page');

@@ -30,26 +30,40 @@ serve(async (req) => {
     } = await supabaseClient.auth.getUser()
 
     if (userError || !user) {
-      throw new Error('Unauthorized')
+      console.error('Authentication error:', userError);
+      throw new Error('Unauthorized - user not authenticated')
     }
+
+    console.log('Authenticated user:', user.id);
 
     const { userSecretId, targetSecretId } = await req.json()
 
     if (!userSecretId || !targetSecretId) {
+      console.error('Missing required parameters:', { userSecretId, targetSecretId });
       throw new Error('Missing required parameters: userSecretId and targetSecretId')
     }
 
     console.log('Creating match between secrets:', { userSecretId, targetSecretId, userId: user.id })
 
-    // Get the secrets to verify ownership and get user IDs
-    const { data: userSecret, error: userSecretError } = await supabaseClient
+    // Get the secrets to verify ownership and get user IDs - use service role for better access
+    const serviceSupabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: userSecret, error: userSecretError } = await serviceSupabaseClient
       .from('secrets')
       .select('*')
       .eq('id', userSecretId)
-      .single()
+      .maybeSingle()
 
-    if (userSecretError || !userSecret) {
-      console.error('Error fetching user secret:', userSecretError)
+    if (userSecretError) {
+      console.error('Error fetching user secret:', userSecretError);
+      throw new Error('Failed to fetch user secret: ' + userSecretError.message)
+    }
+
+    if (!userSecret) {
+      console.error('User secret not found:', userSecretId);
       throw new Error('User secret not found')
     }
 
@@ -68,22 +82,33 @@ serve(async (req) => {
       throw new Error('User does not own the specified secret')
     }
 
-    const { data: targetSecret, error: targetSecretError } = await supabaseClient
+    const { data: targetSecret, error: targetSecretError } = await serviceSupabaseClient
       .from('secrets')
       .select('user_id')
       .eq('id', targetSecretId)
-      .single()
+      .maybeSingle()
 
-    if (targetSecretError || !targetSecret) {
+    if (targetSecretError) {
+      console.error('Error fetching target secret:', targetSecretError);
+      throw new Error('Failed to fetch target secret: ' + targetSecretError.message)
+    }
+
+    if (!targetSecret) {
+      console.error('Target secret not found:', targetSecretId);
       throw new Error('Target secret not found')
     }
 
     // Check if a match already exists between these secrets
-    const { data: existingMatch, error: existingMatchError } = await supabaseClient
+    const { data: existingMatch, error: existingMatchError } = await serviceSupabaseClient
       .from('matches')
       .select('id')
       .or(`and(secret1_id.eq.${userSecretId},secret2_id.eq.${targetSecretId}),and(secret1_id.eq.${targetSecretId},secret2_id.eq.${userSecretId})`)
-      .single()
+      .maybeSingle()
+
+    if (existingMatchError) {
+      console.error('Error checking for existing match:', existingMatchError);
+      // Continue anyway, as this is not critical
+    }
 
     if (existingMatch) {
       console.log('Match already exists:', existingMatch.id)
@@ -98,10 +123,13 @@ serve(async (req) => {
     const user2Id = targetSecret.user_id;
     
     if (!user2Id) {
+      console.error('Target secret has no associated user:', targetSecret);
       throw new Error('Target secret has no associated user');
     }
     
-    const { data: newMatch, error: matchError } = await supabaseClient
+    console.log('Creating match with users:', { user1Id, user2Id });
+    
+    const { data: newMatch, error: matchError } = await serviceSupabaseClient
       .from('matches')
       .insert({
         user1_id: user1Id,
@@ -111,11 +139,16 @@ serve(async (req) => {
         status: 'active'
       })
       .select()
-      .single()
+      .maybeSingle()
 
     if (matchError) {
       console.error('Error creating match:', matchError)
       throw new Error('Failed to create match: ' + matchError.message)
+    }
+
+    if (!newMatch) {
+      console.error('Match creation returned no data');
+      throw new Error('Failed to create match: no data returned')
     }
 
     console.log('Match created successfully:', newMatch.id)

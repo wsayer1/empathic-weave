@@ -152,9 +152,34 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
         defaultToSignUp={true}
         matchedSecretId={selectedSecretForMessage}
         onAuthSuccess={async () => {
+          console.log('Auth success callback triggered');
+          
+          // First, associate the anonymous secret with the new user
+          if (userSecret && !userSecret.user_id) {
+            try {
+              console.log('Updating anonymous secret to associate with user:', userSecret.id);
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                const { error: updateError } = await supabase
+                  .from('secrets')
+                  .update({ user_id: user.id })
+                  .eq('id', userSecret.id);
+                
+                if (updateError) {
+                  console.error('Error updating secret user_id:', updateError);
+                } else {
+                  console.log('Successfully associated secret with user');
+                }
+              }
+            } catch (error) {
+              console.error('Error associating secret with user:', error);
+            }
+          }
+          
           // Create the match connection after successful account creation
           if (selectedSecretForMessage && userSecret) {
             try {
+              console.log('Creating match between secrets:', userSecret.id, selectedSecretForMessage);
               const { data, error } = await supabase.functions.invoke('create-match', {
                 body: {
                   userSecretId: userSecret.id,
@@ -166,14 +191,19 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
                 console.error('Error creating match:', error);
               } else {
                 console.log('Match created successfully:', data);
+                
+                // Navigate to Messages page using React Router
+                navigate('/messages');
               }
             } catch (error) {
               console.error('Error calling create-match function:', error);
+              // Still navigate even if match creation fails
+              navigate('/messages');
             }
+          } else {
+            // Navigate to Messages page even if no match to create
+            navigate('/messages');
           }
-          
-          // Navigate to Messages page using React Router
-          navigate('/messages');
         }}
       />
     </div>

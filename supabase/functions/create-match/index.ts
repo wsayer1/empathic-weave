@@ -52,8 +52,23 @@ serve(async (req) => {
       throw new Error('User secret not found')
     }
 
-    if (userSecret.user_id !== user.id) {
+    // If secret was anonymous but user just signed up, it might not be associated yet
+    if (userSecret.user_id !== user.id && userSecret.user_id !== null) {
       throw new Error('User does not own the specified secret')
+    }
+    
+    // If the secret was anonymous, associate it with the current user
+    if (userSecret.user_id === null) {
+      console.log('Associating anonymous secret with user:', user.id);
+      const { error: updateError } = await supabaseClient
+        .from('secrets')
+        .update({ user_id: user.id })
+        .eq('id', userSecretId);
+      
+      if (updateError) {
+        console.error('Error updating secret user_id:', updateError);
+        throw new Error('Failed to associate secret with user');
+      }
     }
 
     const { data: targetSecret, error: targetSecretError } = await supabaseClient

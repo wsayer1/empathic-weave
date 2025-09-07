@@ -48,11 +48,24 @@ export default function AuthModal({ open, onOpenChange, onAuthSuccess, defaultTo
             throw error;
           }
         } else {
-          toast({
-            title: "Check your email",
-            description: "We've sent you a confirmation link to complete your registration.",
-          });
-          onOpenChange(false);
+          // Check if email confirmation is disabled (immediate auth)
+          const { data: sessionData } = await supabase.auth.getSession();
+          if (sessionData.session) {
+            // User is immediately authenticated
+            toast({
+              title: "Account created",
+              description: "Welcome! Your account has been created successfully.",
+            });
+            onAuthSuccess();
+            onOpenChange(false);
+          } else {
+            // Email confirmation required
+            toast({
+              title: "Check your email",
+              description: "We've sent you a confirmation link to complete your registration.",
+            });
+            onOpenChange(false);
+          }
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({

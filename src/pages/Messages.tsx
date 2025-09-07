@@ -29,6 +29,11 @@ interface Message {
   match_id: string;
 }
 
+interface Secret {
+  id: string;
+  secret_text: string;
+}
+
 const Messages = () => {
   const { user } = useOutletContext<OutletContext>();
   const [matches, setMatches] = useState<Match[]>([]);
@@ -37,6 +42,7 @@ const Messages = () => {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [messagesLoading, setMessagesLoading] = useState(false);
+  const [matchSecrets, setMatchSecrets] = useState<Record<string, Secret>>({});
   const { toast } = useToast();
 
   useEffect(() => {
@@ -66,6 +72,26 @@ const Messages = () => {
       }
 
       setMatches(data || []);
+      
+      // Fetch secrets for each match to display the user's hot take
+      if (data && data.length > 0) {
+        const secretIds = data.map(match => 
+          match.user1_id === user?.id ? match.secret1_id : match.secret2_id
+        );
+        
+        const { data: secrets, error: secretsError } = await supabase
+          .from('secrets')
+          .select('id, secret_text')
+          .in('id', secretIds);
+
+        if (!secretsError && secrets) {
+          const secretsMap = secrets.reduce((acc, secret) => {
+            acc[secret.id] = secret;
+            return acc;
+          }, {} as Record<string, Secret>);
+          setMatchSecrets(secretsMap);
+        }
+      }
     } catch (error) {
       console.error('Error:', error);
       toast({
@@ -175,20 +201,8 @@ const Messages = () => {
   return (
     <main className="min-h-screen bg-black flex">
       <div className="max-w-7xl mx-auto w-full flex">
-        {/* Header */}
-        <div className="absolute top-0 left-60 right-0 z-10 bg-black border-b border-gray-800">
-          <div className="text-center py-6">
-            <h1 className="text-4xl md:text-5xl font-lacquer mb-2 tracking-wider" style={{ color: 'hsl(var(--hot-red))' }}>
-              MESSAGES
-            </h1>
-            <p className="text-lg text-yellow-400 font-lacquer leading-relaxed uppercase tracking-wide">
-              Your conversations with others who share similar experiences.
-            </p>
-          </div>
-        </div>
-
         {/* Split Layout */}
-        <div className="flex w-full pt-32">
+        <div className="flex w-full pt-8">
           {/* Left Panel - Connections List */}
           <div className="w-1/3 border-r border-gray-800 p-6">
             <h2 className="text-xl font-lacquer text-white mb-4 tracking-wider">CONNECTIONS</h2>
@@ -221,10 +235,20 @@ const Messages = () => {
                           <MessageSquare className="w-5 h-5 text-gray-400" />
                         </div>
                         <div className="flex-1">
-                          <h3 className="font-lacquer text-white text-sm tracking-wide">ANONYMOUS</h3>
-                          <p className="text-xs text-gray-400 font-lacquer tracking-wide">
-                            {formatDate(match.created_at).toUpperCase()}
-                          </p>
+                          {(() => {
+                            const secretId = match.user1_id === user?.id ? match.secret1_id : match.secret2_id;
+                            const secret = matchSecrets[secretId];
+                            return (
+                              <>
+                                <h3 className="font-lacquer text-white text-sm tracking-wide line-clamp-2">
+                                  {secret?.secret_text || "LOADING..."}
+                                </h3>
+                                <p className="text-xs text-gray-400 font-lacquer tracking-wide">
+                                  {formatDate(match.created_at).toUpperCase()}
+                                </p>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     </CardContent>

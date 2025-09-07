@@ -4,7 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, Users, MessageCircle, Calendar } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import AuthModal from "./AuthModal";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Secret {
   id: string;
@@ -23,6 +25,7 @@ interface SimilarSecretsProps {
 }
 
 export default function SimilarSecrets({ userSecret, similarSecrets, user, onConnect, onNewSecret }: SimilarSecretsProps) {
+  const navigate = useNavigate();
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [selectedSecretForMessage, setSelectedSecretForMessage] = useState<string | null>(null);
   
@@ -148,9 +151,29 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
         }}
         defaultToSignUp={true}
         matchedSecretId={selectedSecretForMessage}
-        onAuthSuccess={() => {
-          // Navigate to Messages page after successful account creation
-          window.location.href = '/messages';
+        onAuthSuccess={async () => {
+          // Create the match connection after successful account creation
+          if (selectedSecretForMessage && userSecret) {
+            try {
+              const { data, error } = await supabase.functions.invoke('create-match', {
+                body: {
+                  userSecretId: userSecret.id,
+                  targetSecretId: selectedSecretForMessage
+                }
+              });
+
+              if (error) {
+                console.error('Error creating match:', error);
+              } else {
+                console.log('Match created successfully:', data);
+              }
+            } catch (error) {
+              console.error('Error calling create-match function:', error);
+            }
+          }
+          
+          // Navigate to Messages page using React Router
+          navigate('/messages');
         }}
       />
     </div>

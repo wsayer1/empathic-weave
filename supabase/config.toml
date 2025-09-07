@@ -2,3 +2,6 @@ project_id = "boynzjdotukumxrpfoxm"
 
 [functions.process-secret]
 verify_jwt = false
+
+[functions.create-match]
+verify_jwt = true

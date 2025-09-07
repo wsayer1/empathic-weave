@@ -68,12 +68,12 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
                         
                         {/* Metadata row */}
                         <div className="flex items-center gap-4 text-sm text-gray-400">
-                          <span className="bg-green-600 text-white px-2 py-1 rounded font-medium font-lacquer tracking-wide">
-                            {similarityPercentage}% MATCH
+                          <span className="bg-green-600 text-white px-2 py-1 rounded font-medium">
+                            {similarityPercentage}% match
                           </span>
                           <div className="flex items-center">
                             <Calendar className="w-4 h-4 mr-2" />
-                            <span className="font-lacquer tracking-wide">
+                            <span>
                               {formatDistanceToNow(new Date(secret.created_at), { addSuffix: true })}
                             </span>
                           </div>

@@ -93,7 +93,7 @@ const NewSecret = () => {
               SHARE YOUR HOT TAKE
             </h1>
             <p className="text-lg text-yellow-400 font-lacquer leading-relaxed uppercase tracking-wide">
-              IF WE HAVE A SIMILAR HOT TAKE ON RECORD, WE'LL MATCH YOU IN AN ANONYMOUS CHAT
+              IF There is A SIMILAR HOT TAKE ON RECORD, WE'LL MATCH YOU with them IN AN ANONYMOUS CHAT
             </p>
           </div>
           

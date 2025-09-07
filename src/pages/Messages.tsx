@@ -176,7 +176,7 @@ const Messages = () => {
     <main className="min-h-screen bg-black flex">
       <div className="max-w-7xl mx-auto w-full flex">
         {/* Header */}
-        <div className="absolute top-0 left-0 right-0 z-10 bg-black border-b border-gray-800">
+        <div className="absolute top-0 left-60 right-0 z-10 bg-black border-b border-gray-800">
           <div className="text-center py-6">
             <h1 className="text-4xl md:text-5xl font-lacquer mb-2 tracking-wider" style={{ color: 'hsl(var(--hot-red))' }}>
               MESSAGES

@@ -56,35 +56,41 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
               const similarityPercentage = Math.round((secret.similarity || 0) * 100);
               
               return (
-                <Card key={secret.id} className="bg-gray-800 border-gray-700 rounded-2xl p-6">
-                  <div className="flex items-center justify-between">
-                    {/* Left content - secret text and metadata */}
-                    <div className="flex-1 space-y-3">
-                      {/* Main secret text */}
-                      <p className="text-white text-lg font-medium leading-relaxed">
-                        {secret.secret_text}
-                      </p>
+                <Card key={secret.id} className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      {/* Left content - secret text and metadata */}
+                      <div className="flex-1">
+                        {/* Main secret text */}
+                        <p className="text-white leading-relaxed font-lacquer tracking-wide mb-4">
+                          {secret.secret_text}
+                        </p>
+                        
+                        {/* Metadata row */}
+                        <div className="flex items-center gap-4 text-sm text-gray-400">
+                          <span className="bg-green-600 text-white px-2 py-1 rounded font-medium font-lacquer tracking-wide">
+                            {similarityPercentage}% MATCH
+                          </span>
+                          <div className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            <span className="font-lacquer tracking-wide">
+                              {formatDistanceToNow(new Date(secret.created_at), { addSuffix: true })}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                       
-                      {/* Metadata row */}
-                      <div className="flex items-center gap-4 text-sm text-gray-400">
-                        <span className="bg-green-600 text-white px-2 py-1 rounded font-medium">
-                          {similarityPercentage}% match
-                        </span>
-                        <span>Anonymous</span>
-                        <span>{formatDistanceToNow(new Date(secret.created_at), { addSuffix: true })}</span>
+                      {/* Right side - message button */}
+                      <div className="ml-6">
+                        <Button
+                          onClick={() => handleMessageClick(secret.id)}
+                          className="bg-orange-500 hover:bg-orange-600 text-black font-medium px-6 py-2 rounded-full font-lacquer tracking-wide shrink-0"
+                        >
+                          MESSAGE ANONYMOUSLY
+                        </Button>
                       </div>
                     </div>
-                    
-                    {/* Right side - message button */}
-                    <div className="ml-6">
-                      <Button
-                        onClick={() => handleMessageClick(secret.id)}
-                        className="bg-orange-500 hover:bg-orange-600 text-black font-medium px-6 py-2 rounded-full"
-                      >
-                        Message Anonymously
-                      </Button>
-                    </div>
-                  </div>
+                  </CardContent>
                 </Card>
               );
             })}

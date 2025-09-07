@@ -57,11 +57,19 @@ const NewSecret = () => {
   };
 
   const handleConnect = async (secretId: string) => {
+    console.log('🔗 Setting up message thread with secret:', secretId);
+    
     const selectedSecret = similarSecrets.find(secret => secret.id === secretId);
     if (selectedSecret && submittedSecret) {
+      console.log('✅ Found target secret, creating thread');
       setActiveThread({
         userSecret: submittedSecret,
         otherSecret: selectedSecret
+      });
+    } else {
+      console.error('❌ Failed to set up thread - missing data:', {
+        selectedSecret: !!selectedSecret,
+        submittedSecret: !!submittedSecret
       });
     }
   };

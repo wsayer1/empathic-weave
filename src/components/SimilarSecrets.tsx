@@ -202,8 +202,8 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
               await new Promise(resolve => setTimeout(resolve, 500));
             }
             
-            // Now create the match connection after successful account creation
-            if (selectedSecretForMessage && userSecret) {
+            // Now create the match connection and go directly to the message thread
+            if (selectedSecretForMessage && userSecret && onConnect) {
               console.log('💬 Creating match between secrets:', userSecret.id, 'and', selectedSecretForMessage);
               
               const { data, error } = await supabase.functions.invoke('create-match', {
@@ -220,20 +220,33 @@ export default function SimilarSecrets({ userSecret, similarSecrets, user, onCon
                   description: "Failed to create connection. Please try again.",
                   variant: "destructive",
                 });
-                // Don't return here, still navigate to messages
-              } else {
-                console.log('✅ Match created successfully:', data);
-                toast({
-                  title: "Success!",
-                  description: "Connected! You can now start messaging.",
-                });
+                setAuthModalOpen(false);
+                return;
               }
+
+              console.log('✅ Match created successfully:', data);
+              toast({
+                title: "Success!",
+                description: "Connected! You can now start messaging.",
+              });
+
+              // Find the target secret data and go directly to message thread
+              const targetSecret = similarSecrets.find(s => s.id === selectedSecretForMessage);
+              if (targetSecret) {
+                console.log('🧭 Going directly to message thread');
+                setAuthModalOpen(false);
+                onConnect(selectedSecretForMessage);
+              } else {
+                console.log('🧭 Target secret not found, navigating to messages page');
+                setAuthModalOpen(false);
+                navigate('/messages');
+              }
+            } else {
+              // Fallback to messages page if no connection handler
+              console.log('🧭 No connection handler, navigating to messages page');
+              setAuthModalOpen(false);
+              navigate('/messages');
             }
-            
-            // Always navigate to Messages page after auth success
-            console.log('🧭 Navigating to messages page');
-            setAuthModalOpen(false);
-            navigate('/messages');
             
           } catch (error) {
             console.error('💥 Error in auth success flow:', error);

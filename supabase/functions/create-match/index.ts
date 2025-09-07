@@ -67,6 +67,24 @@ serve(async (req) => {
       });
       throw new Error('User does not own the specified secret')
     }
+    
+    // If the secret is still anonymous, try to associate it with the user
+    if (userSecret.user_id === null) {
+      console.log('Secret is still anonymous, associating with user:', user.id);
+      const { error: updateError } = await supabaseClient
+        .from('secrets')
+        .update({ user_id: user.id })
+        .eq('id', userSecretId);
+      
+      if (updateError) {
+        console.error('Error updating secret user_id:', updateError);
+        throw new Error('Failed to associate secret with user');
+      }
+      
+      // Update the local secret object
+      userSecret.user_id = user.id;
+      console.log('Successfully associated secret with user');
+    }
 
     const { data: targetSecret, error: targetSecretError } = await supabaseClient
       .from('secrets')

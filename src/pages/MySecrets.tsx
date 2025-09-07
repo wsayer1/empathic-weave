@@ -26,10 +26,43 @@ const MySecrets = () => {
   useEffect(() => {
     if (user) {
       fetchMySecrets();
+      claimAnonymousSecrets();
     } else {
       setLoading(false);
     }
   }, [user]);
+
+  const claimAnonymousSecrets = async () => {
+    try {
+      const anonymousSecrets = JSON.parse(localStorage.getItem('anonymousSecrets') || '[]');
+      
+      if (anonymousSecrets.length === 0) return;
+
+      console.log('Claiming anonymous secrets:', anonymousSecrets);
+
+      // Update anonymous secrets to be owned by the current user
+      const { error } = await supabase
+        .from('secrets')
+        .update({ user_id: user?.id })
+        .in('id', anonymousSecrets)
+        .is('user_id', null); // Only claim truly anonymous secrets
+
+      if (error) {
+        console.error('Error claiming anonymous secrets:', error);
+        return;
+      }
+
+      // Clear the session storage after successful claiming
+      localStorage.removeItem('anonymousSecrets');
+      console.log('Successfully claimed anonymous secrets');
+
+      // Refresh the secrets list to show the newly claimed ones
+      setTimeout(() => fetchMySecrets(), 500);
+
+    } catch (error) {
+      console.error('Error in claimAnonymousSecrets:', error);
+    }
+  };
 
   const fetchMySecrets = async () => {
     try {

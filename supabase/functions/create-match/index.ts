@@ -59,31 +59,13 @@ serve(async (req) => {
       currentUserId: user.id 
     });
 
-    // Check ownership - user must own the secret OR it must be anonymous (null user_id)
-    if (userSecret.user_id !== null && userSecret.user_id !== user.id) {
+    // Check ownership - user must own the secret
+    if (userSecret.user_id !== user.id) {
       console.error('User does not own the specified secret:', {
         secretUserId: userSecret.user_id,
         currentUserId: user.id
       });
       throw new Error('User does not own the specified secret')
-    }
-    
-    // If the secret is still anonymous, try to associate it with the user
-    if (userSecret.user_id === null) {
-      console.log('Secret is still anonymous, associating with user:', user.id);
-      const { error: updateError } = await supabaseClient
-        .from('secrets')
-        .update({ user_id: user.id })
-        .eq('id', userSecretId);
-      
-      if (updateError) {
-        console.error('Error updating secret user_id:', updateError);
-        throw new Error('Failed to associate secret with user');
-      }
-      
-      // Update the local secret object
-      userSecret.user_id = user.id;
-      console.log('Successfully associated secret with user');
     }
 
     const { data: targetSecret, error: targetSecretError } = await supabaseClient
@@ -112,7 +94,7 @@ serve(async (req) => {
     }
 
     // Create the match - use the actual user IDs from the secrets
-    const user1Id = userSecret.user_id || user.id; // Fallback to current user if still null
+    const user1Id = userSecret.user_id;
     const user2Id = targetSecret.user_id;
     
     if (!user2Id) {

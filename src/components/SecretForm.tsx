@@ -58,6 +58,14 @@ export default function SecretForm({ user, onSecretSubmitted }: SecretFormProps)
         return;
       }
 
+      // Store anonymous secret ID in session storage for later claiming
+      if (!user && data?.secret?.id) {
+        const existingSecrets = JSON.parse(localStorage.getItem('anonymousSecrets') || '[]');
+        existingSecrets.push(data.secret.id);
+        localStorage.setItem('anonymousSecrets', JSON.stringify(existingSecrets));
+        console.log('Stored anonymous secret ID in session:', data.secret.id);
+      }
+
       setSecretText("");
       onSecretSubmitted(data);
 

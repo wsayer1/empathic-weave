@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { User } from '@supabase/supabase-js';
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ interface Secret {
 
 const MySecrets = () => {
   const { user } = useOutletContext<OutletContext>();
+  const navigate = useNavigate();
   const [secrets, setSecrets] = useState<Secret[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -132,9 +133,16 @@ const MySecrets = () => {
             <Lock className="w-8 h-8 text-gray-400" />
           </div>
           <h1 className="text-2xl font-lacquer text-white mb-2 tracking-wider">SIGN IN REQUIRED</h1>
-          <p className="text-yellow-400 font-lacquer tracking-wide uppercase">
+          <p className="text-yellow-400 font-lacquer tracking-wide uppercase mb-6">
             Please sign in to view your hot takes.
           </p>
+          <Button
+            onClick={() => navigate('/')}
+            variant="outline"
+            className="bg-gray-700 hover:bg-gray-600 border-gray-600 text-white hover:text-yellow-400 font-lacquer px-6 py-2"
+          >
+            RETURN HOME
+          </Button>
         </div>
       </main>
     );

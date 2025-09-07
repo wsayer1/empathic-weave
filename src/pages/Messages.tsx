@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { User } from '@supabase/supabase-js';
-import { useOutletContext, useLocation } from "react-router-dom";
+import { useOutletContext, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ interface Secret {
 const Messages = () => {
   const { user } = useOutletContext<OutletContext>();
   const location = useLocation();
+  const navigate = useNavigate();
   const [matches, setMatches] = useState<Match[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -200,9 +201,16 @@ const Messages = () => {
             <Lock className="w-8 h-8 text-gray-400" />
           </div>
           <h1 className="text-2xl font-lacquer text-white mb-2 tracking-wider">SIGN IN REQUIRED</h1>
-          <p className="text-yellow-400 font-lacquer tracking-wide uppercase">
+          <p className="text-yellow-400 font-lacquer tracking-wide uppercase mb-6">
             Please sign in to view your conversations.
           </p>
+          <Button
+            onClick={() => navigate('/')}
+            variant="outline"
+            className="bg-gray-700 hover:bg-gray-600 border-gray-600 text-white hover:text-yellow-400 font-lacquer px-6 py-2"
+          >
+            RETURN HOME
+          </Button>
         </div>
       </main>
     );

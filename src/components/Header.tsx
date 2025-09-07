@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, LogOut, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   user?: any;
@@ -11,6 +12,7 @@ interface HeaderProps {
 
 export default function Header({ user, onSignOut, onAuthClick }: HeaderProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -33,7 +35,12 @@ export default function Header({ user, onSignOut, onAuthClick }: HeaderProps) {
     <header className="w-full bg-transparent border-none sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-between">
         <div className="flex items-center">
-          <h1 className="text-2xl font-lacquer text-white tracking-wider">HOT TAKES</h1>
+          <h1 
+            className="text-2xl font-lacquer text-white tracking-wider cursor-pointer hover:text-yellow-400 transition-colors"
+            onClick={() => navigate('/')}
+          >
+            HOT TAKES
+          </h1>
         </div>
 
         <div className="flex items-center gap-3">

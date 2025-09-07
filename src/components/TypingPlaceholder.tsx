@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 
 const hotTakes = [
-  "The dating scene in SF is fucked",
-  "Remote work killed office culture forever",
-  "Social media destroyed genuine friendships",
-  "AI will replace most jobs within 5 years",
-  "Gen Z has no attention span anymore",
-  "Everyone pretends to care about the environment",
-  "Subscription services are the new poverty trap",
+  "Remote work is the best thing that happened to work-life balance",
+  "AI will create more jobs than it destroys",
+  "Gen Z is more socially conscious than any generation before",
+  "Social media connects us with people we'd never meet otherwise",
+  "People are more aware of mental health than ever",
+  "The dating apps actually work if you use them right",
+  "Subscription services give us access to everything for cheap",
+  "Everyone caring about the environment is actually changing things",
+  "Crypto is democratizing finance for everyone",
   "Nobody reads books anymore, just headlines",
-  "Crypto was always just gambling with extra steps",
-  "Everyone's mental health excuse is just being lazy",
-  "Influencers contribute nothing to society"
+  "Most influencers are just regular people sharing their passion"
 ];
 
 export const TypingPlaceholder = () => {

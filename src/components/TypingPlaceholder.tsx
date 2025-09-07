@@ -33,7 +33,7 @@ export const TypingPlaceholder = () => {
         // Finished typing, wait then start fading
         timeoutId = setTimeout(() => {
           setIsTyping(false);
-        }, 1500);
+        }, 1000);
       }
     } else {
       // Fade out and move to next
@@ -41,7 +41,7 @@ export const TypingPlaceholder = () => {
         setDisplayText("");
         setCurrentIndex((prev) => (prev + 1) % hotTakes.length);
         setIsTyping(true);
-      }, 800);
+      }, 400);
     }
 
     return () => clearTimeout(timeoutId);

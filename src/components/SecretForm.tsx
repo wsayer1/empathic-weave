@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Send, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { TypingPlaceholder } from "./TypingPlaceholder";
 
 interface SecretFormProps {
   user?: any;
@@ -80,13 +81,19 @@ export default function SecretForm({ user, onSecretSubmitted }: SecretFormProps)
     <div className="w-full max-w-4xl mx-auto">
       <form onSubmit={handleSubmit} className="space-y-8">
         <div className="space-y-4">
-          <Textarea
-            value={secretText}
-            onChange={(e) => setSecretText(e.target.value)}
-            placeholder="The Dating scene in SF is fucked"
-            className="min-h-[150px] bg-gray-700 border-0 text-white text-xl p-6 rounded-2xl placeholder:text-muted-foreground/60 resize-none focus:ring-0 focus:outline-none"
-            disabled={loading}
-          />
+          <div className="relative">
+            <Textarea
+              value={secretText}
+              onChange={(e) => setSecretText(e.target.value)}
+              className="min-h-[150px] bg-gray-700 border-0 text-white text-xl p-6 rounded-2xl resize-none focus:ring-0 focus:outline-none"
+              disabled={loading}
+            />
+            {!secretText && (
+              <div className="absolute top-6 left-6 text-muted-foreground/60 text-xl pointer-events-none">
+                <TypingPlaceholder />
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="text-center">

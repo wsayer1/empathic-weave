@@ -10,6 +10,7 @@ const corsHeaders = {
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -56,8 +57,11 @@ serve(async (req) => {
 
     console.log('Generated embedding, length:', embedding.length);
 
-    // Initialize Supabase client
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    // Initialize Supabase client - use service role for anonymous users to bypass RLS
+    const supabase = createClient(
+      supabaseUrl, 
+      user_id ? supabaseAnonKey : supabaseServiceKey
+    );
 
     // Save the secret with embedding
     const { data: newSecret, error: insertError } = await supabase
